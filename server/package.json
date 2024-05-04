@@ -6,7 +6,7 @@
     "dev": "nodemon src/index.js",
     "prod": "NODE_ENV=production node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint . --ext .js --ignore-path .gitignore"
+    "lint": "eslint ./**/*.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.2.0",
