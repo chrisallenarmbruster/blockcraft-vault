@@ -1,0 +1,37 @@
+{
+  "name": "blockcraft-vault",
+  "version": "0.1.0",
+  "description": "\"Blockcraft-Vault is a secure, private, and anonymous application designed to store encryption keys and sensitive information using zero-knowledge encryption schemes. Ideal for blockchain wallets, voting systems, and other applications requiring high-security data management, this app ensures that sensitive data remains encrypted and the server never accesses unhashed user IDs, passwords, or data directly. Built on a PERN stack (PostgreSQL, Express, React, Node.js), this project leverages Redux for state management and Vite for building the front-end efficiently.\"",
+  "main": "server/src/index.js",
+  "scripts": {
+    "build": "npm run build:client",
+    "build:client": "cd client && npm run build",
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "lint": "concurrently \"npm run lint:client\" \"npm run lint:server\"",
+    "lint:client": "cd client && npm run lint",
+    "lint:server": "cd server && npm run lint",
+    "test": "concurrently \"npm run test:client\" \"npm run test:server\"",
+    "test:client": "cd client && npm run test",
+    "test:server": "cd server && npm run test",
+    "prod": "npm run build:client && cd server && npm run prod"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chrisallenarmbruster/blockcraft-vault.git"
+  },
+  "keywords": [
+    "blockchain",
+    "wallet"
+  ],
+  "author": "Chris Armbruster",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/chrisallenarmbruster/blockcraft-vault/issues"
+  },
+  "homepage": "https://github.com/chrisallenarmbruster/blockcraft-vault#readme",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
