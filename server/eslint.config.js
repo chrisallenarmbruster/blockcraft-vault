@@ -1,6 +1,8 @@
 import globals from "globals";
+import pluginJs from "@eslint/js";
 
 export default [
+  pluginJs.configs.recommended,
   {
     files: ["**/*.js", "**/*.cjs", "**/*.mjs"],
     ignores: ["node_modules/**"],

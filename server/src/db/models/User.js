@@ -5,12 +5,12 @@ class User extends Model {}
 const UserModel = (sequelize, DataTypes) => {
   User.init(
     {
-      hashedUserId: {
+      clientHashedUserId: {
         type: DataTypes.STRING,
         allowNull: false,
         primaryKey: true,
       },
-      hashedPassword: {
+      reHashedPassword: {
         type: DataTypes.STRING,
         allowNull: false,
       },

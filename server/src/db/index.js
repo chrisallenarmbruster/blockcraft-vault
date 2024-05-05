@@ -1,6 +1,9 @@
 import Sequelize from "sequelize";
 import UserModel from "./models/User.js";
 
+import dotenv from "dotenv";
+dotenv.config();
+
 const config = { dialect: "postgres", protocol: "postgres", logging: false };
 
 const sequelize = new Sequelize(process.env.DATABASE_URL, config);
@@ -21,4 +24,4 @@ async function syncModels() {
   console.log("All database models were synchronized successfully.");
 }
 
-export { User, checkConnection, syncModels };
+export { User, checkConnection, syncModels, sequelize };

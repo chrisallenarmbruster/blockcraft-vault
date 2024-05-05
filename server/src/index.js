@@ -4,7 +4,7 @@ dotenv.config();
 
 async function setUpDatabase() {
   try {
-    const { User, checkConnection, syncModels } = await import("./db/index.js");
+    const { checkConnection, syncModels } = await import("./db/index.js");
     await checkConnection();
     await syncModels();
   } catch (error) {
