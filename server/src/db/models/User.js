@@ -14,7 +14,7 @@ const UserModel = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      hashedData: {
+      encryptedData: {
         type: DataTypes.TEXT,
         allowNull: true,
       },
