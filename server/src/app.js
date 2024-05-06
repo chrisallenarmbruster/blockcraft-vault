@@ -35,9 +35,19 @@ app.use(express.static(join(__dirname, "../../client/dist")));
 
 app.use("/api", routes);
 
-app.use((err, req, res) => {
-  console.error(err.stack);
-  res.status(500).send("Something broke!");
+// eslint-disable-next-line no-unused-vars
+app.use((error, req, res, next) => {
+  console.log("error handler");
+  console.error(error);
+  if (!error.status) {
+    error.status = 500;
+  }
+  res.status(error.status).json({
+    status: error.status,
+    message: error.message,
+    name: error.name,
+    comment: error.comment,
+  });
 });
 
 export default app;

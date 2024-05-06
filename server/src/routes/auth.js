@@ -22,24 +22,30 @@ router.post("/register", async (req, res, next) => {
     const newUser = await User.create({ clientHashedUserId, reHashedPassword });
     res.status(201).json(newUser);
   } catch (error) {
-    console.error(error);
+    error.status = 500;
+    error.comment = "Error processing POST /api/auth/register route";
     next(error);
   }
 });
 
 router.post("/login", (req, res, next) => {
-  passport.authenticate("local", (err, user, info) => {
-    if (err) {
-      console.error(err);
-      return res.status(400).json(err);
+  passport.authenticate("local", (error, user, info) => {
+    if (error) {
+      error.status = 400;
+      error.comment = "Error processing POST /api/auth/login route";
+      return next(error);
     }
     if (!user) {
-      return res.status(404).json(info);
+      const err = new Error(info.message);
+      err.status = 404;
+      err.comment = "Authentication failed in POST /api/auth/login route";
+      return next(err);
     }
-    req.logIn(user, (err) => {
-      if (err) {
-        console.error(err);
-        return res.status(400).json(err);
+    req.logIn(user, (error) => {
+      if (error) {
+        error.status = 400;
+        error.comment = "Bad request in POST /api/auth/login route";
+        return next(error);
       }
       return res.status(200).json(user);
     });
@@ -52,7 +58,8 @@ router.post("/logout", (req, res, next) => {
       res.status(200).json({ message: "User logged out" });
     });
   } catch (error) {
-    console.error(error);
+    error.status = 500;
+    error.comment = "Error processing POST /api/auth/logout route";
     next(error);
   }
 });
@@ -65,7 +72,8 @@ router.get("/user-session", (req, res, next) => {
       res.status(204).json({ message: "No user session" });
     }
   } catch (error) {
-    console.error(error);
+    error.status = 500;
+    error.comment = "Error processing GET /api/auth/user-session route";
     next(error);
   }
 });
@@ -81,10 +89,10 @@ router.delete("/delete-user", async (req, res, next) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    req.logout((err) => {
-      if (err) {
-        console.error(err);
-        return next(err);
+    req.logout((error) => {
+      if (error) {
+        console.error(error);
+        return next(error);
       }
 
       user
@@ -98,7 +106,8 @@ router.delete("/delete-user", async (req, res, next) => {
         });
     });
   } catch (error) {
-    console.error(error);
+    error.status = 500;
+    error.comment = "Error processing DEL /api/auth/delete-user route";
     next(error);
   }
 });
