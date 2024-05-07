@@ -1,5 +1,17 @@
 let memStore = {};
 
+export function setItem(key, value) {
+  memStore[key] = value;
+}
+
+export function getItem(key) {
+  return memStore[key];
+}
+
+export function removeItem(key) {
+  delete memStore[key];
+}
+
 async function hashFunction(input) {
   try {
     const encoder = new TextEncoder();
@@ -60,12 +72,4 @@ export async function processCredentials(email, password, pin = "") {
     console.error("Error processing credentials:", error);
     throw error;
   }
-}
-
-export function getItem(key) {
-  return memStore[key];
-}
-
-export function removeItem(key) {
-  delete memStore[key];
 }

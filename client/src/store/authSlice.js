@@ -1,8 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getItem, removeItem } from "./cryptoMemStore";
+import { fetchEncryptedData, updateEncryptedData } from "./dataSlice";
 import axios from "axios";
 
-export const login = createAsyncThunk("auth/login", async () => {
+export const login = createAsyncThunk("auth/login", async (_, { dispatch }) => {
   console.log("login");
   const clientHashedUserId = getItem("clientHashedUserId");
   const clientHashedPassword = getItem("clientHashedPassword");
@@ -11,6 +12,8 @@ export const login = createAsyncThunk("auth/login", async () => {
     clientHashedUserId,
     clientHashedPassword,
   });
+
+  dispatch(fetchEncryptedData());
 
   return response.data;
 });

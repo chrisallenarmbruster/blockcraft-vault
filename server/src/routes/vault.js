@@ -25,11 +25,12 @@ router.get("/", isAuthenticated, async (req, res, next) => {
 });
 
 router.put("/", isAuthenticated, async (req, res, next) => {
+  console.log("req.body", req.body);
   if (!req.body.encryptedData) {
     return res.status(400).json({ message: "Encrypted data is required" });
   }
   try {
-    const [updated] = await User.update(
+    const [updated, [updatedUser]] = await User.update(
       { encryptedData: req.body.encryptedData },
       {
         where: { clientHashedUserId: req.user.clientHashedUserId },
@@ -39,7 +40,7 @@ router.put("/", isAuthenticated, async (req, res, next) => {
     if (!updated) {
       return res.status(404).json({ message: "User not found" });
     }
-    res.status(200).json({ message: "Encrypted data updated successfully" });
+    res.status(200).json({ encryptedData: updatedUser.encryptedData });
   } catch (error) {
     error.status = 500;
     error.comment = "Error processing PUT /api/vault route";
@@ -49,7 +50,7 @@ router.put("/", isAuthenticated, async (req, res, next) => {
 
 router.delete("/", isAuthenticated, async (req, res, next) => {
   try {
-    const [updated] = await User.update(
+    const [updated, [updatedUser]] = await User.update(
       { encryptedData: null },
       {
         where: { clientHashedUserId: req.user.clientHashedUserId },
@@ -59,7 +60,7 @@ router.delete("/", isAuthenticated, async (req, res, next) => {
     if (!updated) {
       return res.status(404).json({ message: "User not found" });
     }
-    res.status(204).json({ message: "Encrypted data deleted successfully" });
+    res.status(200).json({ encryptedData: updatedUser.encryptedData });
   } catch (error) {
     error.status = 500;
     error.comment = "Error processing DEL /api/vault route";
