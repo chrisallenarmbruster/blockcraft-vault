@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { processCredentials, getItem } from "../store/cryptoMemStore";
+import { processCredentials } from "../store/cryptoMemStore";
 import { login, logout, register } from "../store/authSlice";
 
 function TestComponent() {
