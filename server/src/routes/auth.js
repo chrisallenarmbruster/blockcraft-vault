@@ -20,6 +20,7 @@ router.post("/register", async (req, res, next) => {
 
     const reHashedPassword = await bcrypt.hash(clientHashedPassword, 10);
     const newUser = await User.create({ clientHashedUserId, reHashedPassword });
+    console.log("New User Registered:", newUser);
     res.status(201).json(newUser);
   } catch (error) {
     error.status = 500;
@@ -47,6 +48,7 @@ router.post("/login", (req, res, next) => {
         error.comment = "Bad request in POST /api/auth/login route";
         return next(error);
       }
+      console.log("User logged in:", user);
       return res.status(200).json(user);
     });
   })(req, res, next);

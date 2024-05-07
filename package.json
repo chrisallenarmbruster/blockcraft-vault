@@ -1,6 +1,7 @@
 {
   "name": "blockcraft-vault",
   "version": "0.1.0",
+  "type": "module",
   "description": "\"Blockcraft-Vault is a secure, private, and anonymous application designed to store encryption keys and sensitive information using zero-knowledge encryption schemes. Ideal for blockchain wallets, voting systems, and other applications requiring high-security data management, this app ensures that sensitive data remains encrypted and the server never accesses unhashed user IDs, passwords, or data directly. Built on a PERN stack (PostgreSQL, Express, React, Node.js), this project leverages Redux for state management and Vite for building the front-end efficiently.\"",
   "main": "server/src/index.js",
   "scripts": {
