@@ -25,7 +25,6 @@ router.get("/", isAuthenticated, async (req, res, next) => {
 });
 
 router.put("/", isAuthenticated, async (req, res, next) => {
-  console.log("req.body", req.body);
   if (!req.body.encryptedData) {
     return res.status(400).json({ message: "Encrypted data is required" });
   }

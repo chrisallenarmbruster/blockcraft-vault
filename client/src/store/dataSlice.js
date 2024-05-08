@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { decryptData, encryptData } from "./cryptoMemStore";
 import axios from "axios";
 
 export const fetchEncryptedData = createAsyncThunk(
@@ -6,8 +7,11 @@ export const fetchEncryptedData = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const response = await axios.get("/api/vault");
-      // TODO: handle decryption
-      return response.data;
+      if (response.data.encryptedData === null) {
+        return null;
+      }
+      const decryptedData = await decryptData(response.data.encryptedData);
+      return decryptedData;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data);
     }
@@ -16,12 +20,12 @@ export const fetchEncryptedData = createAsyncThunk(
 
 export const updateEncryptedData = createAsyncThunk(
   "data/updateEncryptedData",
-  async (encryptedData, thunkAPI) => {
+  async (unencryptedData, thunkAPI) => {
     try {
-      // TODO: handle encryption
+      const encryptedData = await encryptData(unencryptedData);
       const response = await axios.put("/api/vault", { encryptedData });
-      // TODO: handle decryption
-      return response.data;
+      const decryptedData = await decryptData(response.data.encryptedData);
+      return decryptedData;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data);
     }
@@ -40,10 +44,12 @@ export const deleteEncryptedData = createAsyncThunk(
   }
 );
 
+const initialState = { unencryptedData: null, loading: false, error: null };
+
 const dataSlice = createSlice({
   name: "data",
-  initialState: { encryptedData: null, loading: false, error: null },
-  reducers: {},
+  initialState,
+  reducers: { resetData: () => initialState },
   extraReducers: (builder) => {
     builder
       .addCase(fetchEncryptedData.pending, (state) => {
@@ -51,7 +57,7 @@ const dataSlice = createSlice({
       })
       .addCase(fetchEncryptedData.fulfilled, (state, action) => {
         state.loading = false;
-        state.encryptedData = action.payload;
+        state.unencryptedData = action.payload;
       })
       .addCase(fetchEncryptedData.rejected, (state, action) => {
         state.loading = false;
@@ -61,8 +67,8 @@ const dataSlice = createSlice({
         state.loading = true;
       })
       .addCase(updateEncryptedData.fulfilled, (state, action) => {
+        state.unencryptedData = action.payload;
         state.loading = false;
-        state.encryptedData = action.payload;
       })
       .addCase(updateEncryptedData.rejected, (state, action) => {
         state.loading = false;
@@ -71,9 +77,9 @@ const dataSlice = createSlice({
       .addCase(deleteEncryptedData.pending, (state) => {
         state.loading = true;
       })
-      .addCase(deleteEncryptedData.fulfilled, (state, action) => {
+      .addCase(deleteEncryptedData.fulfilled, (state) => {
         state.loading = false;
-        state.encryptedData = action.payload;
+        state.unencryptedData = null;
       })
       .addCase(deleteEncryptedData.rejected, (state, action) => {
         state.loading = false;
@@ -81,5 +87,7 @@ const dataSlice = createSlice({
       });
   },
 });
+
+export const { resetData } = dataSlice.actions;
 
 export default dataSlice.reducer;

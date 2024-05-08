@@ -73,3 +73,66 @@ export async function processCredentials(email, password, pin = "") {
     throw error;
   }
 }
+
+export async function encryptData(unencryptedData) {
+  try {
+    const encryptionKey = getItem("encryptionKey");
+    const iv = window.crypto.getRandomValues(new Uint8Array(16));
+
+    const unencryptedDataString = JSON.stringify(unencryptedData);
+    const data = new TextEncoder().encode(unencryptedDataString);
+
+    const encryptedData = await window.crypto.subtle.encrypt(
+      {
+        name: "AES-GCM",
+        iv: iv,
+      },
+      encryptionKey,
+      data
+    );
+
+    const encryptedDataWithIv = new Uint8Array(
+      iv.length + encryptedData.byteLength
+    );
+    encryptedDataWithIv.set(iv);
+    encryptedDataWithIv.set(new Uint8Array(encryptedData), iv.length);
+
+    const base64String = btoa(String.fromCharCode(...encryptedDataWithIv));
+
+    return base64String;
+  } catch (error) {
+    console.error("Encryption failed:", error);
+    throw error;
+  }
+}
+
+export async function decryptData(base64String) {
+  try {
+    const encryptionKey = getItem("encryptionKey");
+
+    const encryptedData = Uint8Array.from(atob(base64String), (c) =>
+      c.charCodeAt(0)
+    );
+
+    const iv = encryptedData.slice(0, 16);
+    const data = encryptedData.slice(16);
+
+    const decryptedData = await window.crypto.subtle.decrypt(
+      {
+        name: "AES-GCM",
+        iv: iv,
+      },
+      encryptionKey,
+      data
+    );
+
+    const decryptedDataString = new TextDecoder().decode(
+      new Uint8Array(decryptedData)
+    );
+    const decryptedDataObject = JSON.parse(decryptedDataString);
+    return decryptedDataObject;
+  } catch (error) {
+    console.error("Decryption failed:", error);
+    throw error;
+  }
+}
