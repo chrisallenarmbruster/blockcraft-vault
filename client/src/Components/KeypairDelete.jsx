@@ -20,7 +20,6 @@ function KeypairDelete({ keypair }) {
 KeypairDelete.propTypes = {
   keypair: PropTypes.shape({
     nanoId: PropTypes.string.isRequired,
-    // ... other properties
   }),
 };
 

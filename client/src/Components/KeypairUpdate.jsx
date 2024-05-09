@@ -3,11 +3,11 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import elliptic from "elliptic";
 import { Button, Form } from "react-bootstrap";
-import { useDispatch } from "react-redux";
-import { addKeypair } from "../store/dataSlice";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { updateKeypair } from "../store/dataSlice";
+import PropTypes from "prop-types";
 import { createSelector } from "reselect";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const EC = elliptic.ec;
 const ec = new EC("secp256k1");
@@ -17,8 +17,10 @@ const selectKeypairs = createSelector(
   (unencryptedData) => unencryptedData?.keypairs || []
 );
 
-function KeypairAdd() {
+function KeypairUpdate() {
+  const location = useLocation();
   const navigate = useNavigate();
+  const keypair = location.state.keypair;
   const keypairs = useSelector(selectKeypairs);
 
   const schema = yup
@@ -29,7 +31,10 @@ function KeypairAdd() {
         .test(
           "unique-label",
           "Label already in use",
-          (value) => !keypairs.some((keypair) => keypair.label === value)
+          (value) =>
+            !keypairs.some(
+              (kp) => kp.label === value && kp.nanoId !== keypair.nanoId
+            )
         ),
       publicKey: yup
         .string()
@@ -56,12 +61,12 @@ function KeypairAdd() {
     clearErrors,
   } = useForm({
     resolver: yupResolver(schema),
+    defaultValues: keypair,
   });
   const dispatch = useDispatch();
 
   const onSubmit = async (data) => {
     console.log(data);
-    // Perform key pair validation
     if (!validateKeyPair(data.privateKey, data.publicKey)) {
       setError("publicKey", {
         type: "manual",
@@ -70,10 +75,10 @@ function KeypairAdd() {
     } else {
       clearErrors("publicKey");
       try {
-        await dispatch(addKeypair(data)).unwrap();
+        await dispatch(updateKeypair({ ...keypair, ...data })).unwrap();
         navigate("/keypairs");
       } catch (error) {
-        console.error("Failed to add keypair:", error);
+        console.error("Failed to update keypair:", error);
       }
     }
   };
@@ -91,7 +96,7 @@ function KeypairAdd() {
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
-      <Form.Group className="mb-3" controlId="formLabel">
+      <Form.Group className="mb-3" controlId="updateFormLabel">
         <Form.Label>Label</Form.Label>
         <Form.Control
           type="text"
@@ -103,7 +108,7 @@ function KeypairAdd() {
         </Form.Control.Feedback>
       </Form.Group>
 
-      <Form.Group className="mb-3" controlId="formPublicKey">
+      <Form.Group className="mb-3" controlId="updateFormPublicKey">
         <Form.Label>Public Key</Form.Label>
         <Form.Control
           type="text"
@@ -115,7 +120,7 @@ function KeypairAdd() {
         </Form.Control.Feedback>
       </Form.Group>
 
-      <Form.Group className="mb-3" controlId="formPrivateKey">
+      <Form.Group className="mb-3" controlId="updateFormPrivateKey">
         <Form.Label>Private Key</Form.Label>
         <Form.Control
           type="password"
@@ -128,10 +133,16 @@ function KeypairAdd() {
       </Form.Group>
 
       <Button variant="primary" type="submit">
-        Add Keypair
+        Update Keypair
       </Button>
     </Form>
   );
 }
 
-export default KeypairAdd;
+KeypairUpdate.propTypes = {
+  keypair: PropTypes.shape({
+    nanoId: PropTypes.string.isRequired,
+  }),
+};
+
+export default KeypairUpdate;
