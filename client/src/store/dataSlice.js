@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { decryptData, encryptData } from "./cryptoMemStore";
 import axios from "axios";
+import { nanoid } from "nanoid";
 
 export const fetchEncryptedData = createAsyncThunk(
   "data/fetchEncryptedData",
@@ -41,6 +42,54 @@ export const deleteEncryptedData = createAsyncThunk(
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data);
     }
+  }
+);
+
+export const addKeypair = createAsyncThunk(
+  "data/addKeypair",
+  async (keypair, thunkAPI) => {
+    const { dispatch, getState } = thunkAPI;
+    const { unencryptedData } = getState().data;
+
+    const nanoId = nanoid();
+
+    const newUnencryptedData = JSON.parse(JSON.stringify(unencryptedData));
+
+    newUnencryptedData.keypairs.push({ ...keypair, nanoId });
+
+    return dispatch(updateEncryptedData(newUnencryptedData));
+  }
+);
+
+export const deleteKeypair = createAsyncThunk(
+  "data/deleteKeypair",
+  async (keypair, thunkAPI) => {
+    const { dispatch, getState } = thunkAPI;
+    const { unencryptedData } = getState().data;
+
+    const newUnencryptedData = JSON.parse(JSON.stringify(unencryptedData));
+
+    newUnencryptedData.keypairs = newUnencryptedData.keypairs.filter(
+      (item) => item.nanoId !== keypair.nanoId
+    );
+
+    return dispatch(updateEncryptedData(newUnencryptedData));
+  }
+);
+
+export const updateKeypair = createAsyncThunk(
+  "data/updateKeypair",
+  async (keypair, thunkAPI) => {
+    const { dispatch, getState } = thunkAPI;
+    const { unencryptedData } = getState().data;
+
+    const newUnencryptedData = JSON.parse(JSON.stringify(unencryptedData));
+
+    newUnencryptedData.keypairs = newUnencryptedData.keypairs.map((item) =>
+      item.nanoId === keypair.nanoId ? keypair : item
+    );
+
+    return dispatch(updateEncryptedData(newUnencryptedData));
   }
 );
 
