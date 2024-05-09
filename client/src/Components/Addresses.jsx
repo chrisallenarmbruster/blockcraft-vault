@@ -1,11 +1,11 @@
 import { useSelector } from "react-redux";
 import { Table, Button } from "react-bootstrap";
-import KeypairDelete from "./KeypairDelete";
+import AddressDelete from "./AddressDelete";
 import { useNavigate } from "react-router-dom";
 
-function Keypairs() {
-  const keypairs =
-    useSelector((state) => state.data.unencryptedData?.keypairs) || [];
+function Addresses() {
+  const addresses =
+    useSelector((state) => state.data.unencryptedData?.addresses) || [];
   const navigate = useNavigate();
 
   const formatKey = (key) => {
@@ -15,8 +15,8 @@ function Keypairs() {
   return (
     <>
       <br />
-      <span className="h2 me-3 mb-3">Keychain</span>
-      <Button variant="primary" onClick={() => navigate("/add-keypair")}>
+      <span className="h2 me-3 mb-3">Addresses Book</span>
+      <Button variant="primary" onClick={() => navigate("/add-address")}>
         Add
       </Button>
       <Table striped bordered hover>
@@ -28,20 +28,20 @@ function Keypairs() {
           </tr>
         </thead>
         <tbody>
-          {keypairs.map((keypair) => (
-            <tr key={keypair.nanoId}>
-              <td>{keypair.label}</td>
-              <td>{formatKey(keypair.publicKey)}</td>
+          {addresses.map((address) => (
+            <tr key={address.nanoId}>
+              <td>{address.label}</td>
+              <td>{formatKey(address.publicKey)}</td>
               <td>
                 <Button
                   variant="primary"
                   onClick={() =>
-                    navigate("/update-keypair", { state: { keypair } })
+                    navigate("/update-address", { state: { address } })
                   }
                 >
                   Update
                 </Button>
-                <KeypairDelete keypair={keypair} />
+                <AddressDelete address={address} />
               </td>
             </tr>
           ))}
@@ -51,4 +51,4 @@ function Keypairs() {
   );
 }
 
-export default Keypairs;
+export default Addresses;

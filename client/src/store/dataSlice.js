@@ -93,6 +93,54 @@ export const updateKeypair = createAsyncThunk(
   }
 );
 
+export const addAddress = createAsyncThunk(
+  "data/addAddress",
+  async (address, thunkAPI) => {
+    const { dispatch, getState } = thunkAPI;
+    const { unencryptedData } = getState().data;
+
+    const nanoId = nanoid();
+
+    const newUnencryptedData = JSON.parse(JSON.stringify(unencryptedData));
+
+    newUnencryptedData.addresses.push({ ...address, nanoId });
+
+    return dispatch(updateEncryptedData(newUnencryptedData));
+  }
+);
+
+export const deleteAddress = createAsyncThunk(
+  "data/deleteAddress",
+  async (address, thunkAPI) => {
+    const { dispatch, getState } = thunkAPI;
+    const { unencryptedData } = getState().data;
+
+    const newUnencryptedData = JSON.parse(JSON.stringify(unencryptedData));
+
+    newUnencryptedData.addresses = newUnencryptedData.addresses.filter(
+      (item) => item.nanoId !== address.nanoId
+    );
+
+    return dispatch(updateEncryptedData(newUnencryptedData));
+  }
+);
+
+export const updateAddress = createAsyncThunk(
+  "data/updateAddress",
+  async (address, thunkAPI) => {
+    const { dispatch, getState } = thunkAPI;
+    const { unencryptedData } = getState().data;
+
+    const newUnencryptedData = JSON.parse(JSON.stringify(unencryptedData));
+
+    newUnencryptedData.addresses = newUnencryptedData.addresses.map((item) =>
+      item.nanoId === address.nanoId ? address : item
+    );
+
+    return dispatch(updateEncryptedData(newUnencryptedData));
+  }
+);
+
 const initialState = { unencryptedData: null, loading: false, error: null };
 
 const dataSlice = createSlice({
