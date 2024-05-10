@@ -6,6 +6,7 @@ import {
   updateEncryptedData,
 } from "./dataSlice";
 import axios from "axios";
+import { fetchEntriesForAllKeys } from "./entriesSlice";
 
 export const login = createAsyncThunk("auth/login", async (_, { dispatch }) => {
   const clientHashedUserId = getItem("clientHashedUserId");
@@ -16,7 +17,8 @@ export const login = createAsyncThunk("auth/login", async (_, { dispatch }) => {
     clientHashedPassword,
   });
 
-  dispatch(fetchEncryptedData());
+  await dispatch(fetchEncryptedData());
+  dispatch(fetchEntriesForAllKeys());
 
   return response.data;
 });

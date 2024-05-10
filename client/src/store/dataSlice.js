@@ -55,7 +55,9 @@ export const addKeypair = createAsyncThunk(
 
     const newUnencryptedData = JSON.parse(JSON.stringify(unencryptedData));
 
-    newUnencryptedData.keypairs.push({ ...keypair, nanoId });
+    newUnencryptedData.keypairs
+      .push({ ...keypair, nanoId })
+      .sort((a, b) => a.label.localeCompare(b.label));
 
     return dispatch(updateEncryptedData(newUnencryptedData));
   }
@@ -69,9 +71,9 @@ export const deleteKeypair = createAsyncThunk(
 
     const newUnencryptedData = JSON.parse(JSON.stringify(unencryptedData));
 
-    newUnencryptedData.keypairs = newUnencryptedData.keypairs.filter(
-      (item) => item.nanoId !== keypair.nanoId
-    );
+    newUnencryptedData.keypairs = newUnencryptedData.keypairs
+      .filter((item) => item.nanoId !== keypair.nanoId)
+      .sort((a, b) => a.label.localeCompare(b.label));
 
     return dispatch(updateEncryptedData(newUnencryptedData));
   }
@@ -85,9 +87,9 @@ export const updateKeypair = createAsyncThunk(
 
     const newUnencryptedData = JSON.parse(JSON.stringify(unencryptedData));
 
-    newUnencryptedData.keypairs = newUnencryptedData.keypairs.map((item) =>
-      item.nanoId === keypair.nanoId ? keypair : item
-    );
+    newUnencryptedData.keypairs = newUnencryptedData.keypairs
+      .map((item) => (item.nanoId === keypair.nanoId ? keypair : item))
+      .sort((a, b) => a.label.localeCompare(b.label));
 
     return dispatch(updateEncryptedData(newUnencryptedData));
   }
@@ -103,7 +105,9 @@ export const addAddress = createAsyncThunk(
 
     const newUnencryptedData = JSON.parse(JSON.stringify(unencryptedData));
 
-    newUnencryptedData.addresses.push({ ...address, nanoId });
+    newUnencryptedData.addresses
+      .push({ ...address, nanoId })
+      .sort((a, b) => a.label.localeCompare(b.label));
 
     return dispatch(updateEncryptedData(newUnencryptedData));
   }
@@ -117,9 +121,9 @@ export const deleteAddress = createAsyncThunk(
 
     const newUnencryptedData = JSON.parse(JSON.stringify(unencryptedData));
 
-    newUnencryptedData.addresses = newUnencryptedData.addresses.filter(
-      (item) => item.nanoId !== address.nanoId
-    );
+    newUnencryptedData.addresses = newUnencryptedData.addresses
+      .filter((item) => item.nanoId !== address.nanoId)
+      .sort((a, b) => a.label.localeCompare(b.label));
 
     return dispatch(updateEncryptedData(newUnencryptedData));
   }
@@ -133,9 +137,9 @@ export const updateAddress = createAsyncThunk(
 
     const newUnencryptedData = JSON.parse(JSON.stringify(unencryptedData));
 
-    newUnencryptedData.addresses = newUnencryptedData.addresses.map((item) =>
-      item.nanoId === address.nanoId ? address : item
-    );
+    newUnencryptedData.addresses = newUnencryptedData.addresses
+      .map((item) => (item.nanoId === address.nanoId ? address : item))
+      .sort((a, b) => a.label.localeCompare(b.label));
 
     return dispatch(updateEncryptedData(newUnencryptedData));
   }

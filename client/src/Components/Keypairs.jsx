@@ -6,11 +6,17 @@ import { useNavigate } from "react-router-dom";
 function Keypairs() {
   const keypairs =
     useSelector((state) => state.data.unencryptedData?.keypairs) || [];
+  const entries = useSelector((state) => state.entries.data);
   const navigate = useNavigate();
 
   const formatKey = (key) => {
     return key.slice(0, 4) + "..." + key.slice(-4);
   };
+
+  const total = keypairs.reduce((sum, keypair) => {
+    const netAmount = entries[keypair.publicKey]?.meta?.netAmount || 0;
+    return sum + netAmount;
+  }, 0);
 
   return (
     <>
@@ -19,11 +25,13 @@ function Keypairs() {
       <Button variant="primary" onClick={() => navigate("/add-keypair")}>
         Add
       </Button>
+      Total: {total}
       <Table striped bordered hover>
         <thead>
           <tr>
             <th>Label</th>
             <th>Public Key</th>
+            <th>Balance</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -32,6 +40,7 @@ function Keypairs() {
             <tr key={keypair.nanoId}>
               <td>{keypair.label}</td>
               <td>{formatKey(keypair.publicKey)}</td>
+              <td>{entries[keypair.publicKey]?.meta?.netAmount || "N/A"}</td>
               <td>
                 <Button
                   variant="primary"

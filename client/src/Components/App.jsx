@@ -10,10 +10,12 @@ import Addresses from "./Addresses";
 import AddressAdd from "./AddressAdd";
 import AddressUpdate from "./AddressUpdate";
 import { useNavigate } from "react-router-dom";
+import FetchEntriesButton from "./FetchEntriesButton";
 
 function App() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const navigate = useNavigate();
+
   return (
     <>
       {!isAuthenticated && <Login />}
@@ -21,16 +23,13 @@ function App() {
         <Container>
           <h1>Logged in</h1>
           <LogoutButton />
+          <FetchEntriesButton />
           <Button variant="primary" onClick={() => navigate("/addresses")}>
             Address Book
           </Button>{" "}
           <Button variant="primary" onClick={() => navigate("/keypairs")}>
             Keychain
           </Button>
-          {/* <Keypairs /> */}
-          {/* <KeypairAdd /> */}
-          {/* <KeypairDelete /> */}
-          {/* <KeypairUpdate /> */}
           <Routes>
             <Route path="/" element={<Keypairs />} />
             <Route path="/keypairs" element={<Keypairs />} />
