@@ -55,9 +55,9 @@ export const addKeypair = createAsyncThunk(
 
     const newUnencryptedData = JSON.parse(JSON.stringify(unencryptedData));
 
-    newUnencryptedData.keypairs
-      .push({ ...keypair, nanoId })
-      .sort((a, b) => a.label.localeCompare(b.label));
+    newUnencryptedData.keypairs.push({ ...keypair, nanoId });
+
+    newUnencryptedData.keypairs.sort((a, b) => a.label.localeCompare(b.label));
 
     return dispatch(updateEncryptedData(newUnencryptedData));
   }
@@ -105,9 +105,8 @@ export const addAddress = createAsyncThunk(
 
     const newUnencryptedData = JSON.parse(JSON.stringify(unencryptedData));
 
-    newUnencryptedData.addresses
-      .push({ ...address, nanoId })
-      .sort((a, b) => a.label.localeCompare(b.label));
+    newUnencryptedData.addresses.push({ ...address, nanoId });
+    newUnencryptedData.addresses.sort((a, b) => a.label.localeCompare(b.label));
 
     return dispatch(updateEncryptedData(newUnencryptedData));
   }
