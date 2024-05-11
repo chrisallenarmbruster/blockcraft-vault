@@ -16,6 +16,7 @@
     "bcryptjs": "^2.4.3",
     "bootstrap": "^5.3.3",
     "buffer": "^6.0.3",
+    "crypto": "^1.0.1",
     "dotenv": "^16.4.5",
     "elliptic": "^6.5.5",
     "nanoid": "^5.0.7",
