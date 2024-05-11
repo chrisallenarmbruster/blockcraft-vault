@@ -11,6 +11,7 @@ import AddressAdd from "./AddressAdd";
 import AddressUpdate from "./AddressUpdate";
 import { useNavigate } from "react-router-dom";
 import FetchEntriesButton from "./FetchEntriesButton";
+import EntryAdd from "./EntryAdd";
 
 function App() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -30,6 +31,9 @@ function App() {
           <Button variant="primary" onClick={() => navigate("/keypairs")}>
             Keychain
           </Button>
+          <Button variant="primary" onClick={() => navigate("/add-entry")}>
+            Add Entry
+          </Button>
           <Routes>
             <Route path="/" element={<Keypairs />} />
             <Route path="/keypairs" element={<Keypairs />} />
@@ -38,6 +42,7 @@ function App() {
             <Route path="/addresses" element={<Addresses />} />
             <Route path="/add-address" element={<AddressAdd />} />
             <Route path="/update-address" element={<AddressUpdate />} />
+            <Route path="/add-entry" element={<EntryAdd />} />
           </Routes>
         </Container>
       )}

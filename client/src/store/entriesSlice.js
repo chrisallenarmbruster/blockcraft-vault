@@ -105,41 +105,11 @@ async function computeAccountBalance(publicKey) {
   }
 }
 
-// function signEntry(entry, privateKeyHex) {
-//   const sign = crypto.createSign("SHA256");
-//   sign.update(JSON.stringify(entry));
-//   sign.end();
-//   const ecKeyPair = ec.keyFromPrivate(privateKeyHex);
-//   const signature = ecKeyPair.sign(JSON.stringify(entry)).toDER("hex");
-//   return signature;
-// }
-
-async function signEntry(entry, privateKeyHex) {
-  const msgHashHex = await hashEntry(entry);
-  const msgHash = hexStringToUint8Array(msgHashHex);
+function signEntry(entry, privateKeyHex) {
   const keyPair = ec.keyFromPrivate(privateKeyHex);
-  const signature = keyPair.sign(msgHash);
-
+  const signature = keyPair.sign(JSON.stringify(entry));
   return signature.toDER("hex");
 }
-
-function hexStringToUint8Array(hexString) {
-  if (hexString.length % 2 !== 0) {
-    throw new Error("Invalid hexString");
-  }
-  const arrayBuffer = new Uint8Array(hexString.length / 2);
-  for (let i = 0; i < hexString.length; i += 2) {
-    const byteValue = parseInt(hexString.substring(i, i + 2), 16);
-    arrayBuffer[i / 2] = byteValue;
-  }
-  return arrayBuffer;
-}
-
-// function hashEntry(entry) {
-//   const hash = crypto.createHash("SHA256");
-//   hash.update(JSON.stringify(entry));
-//   return hash.digest("hex");
-// }
 
 async function hashEntry(entry) {
   const encoder = new TextEncoder();
