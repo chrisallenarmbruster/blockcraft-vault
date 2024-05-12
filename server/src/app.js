@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import routes from "./routes/index.js";
 import "./routes/passportConfig.js";
+import cors from "cors";
 
 const app = express();
 
@@ -15,6 +16,7 @@ const sessionStore = new SequelizeStore({
   db: sequelize,
 });
 
+app.use(cors());
 app.use(
   session({
     secret: process.env.SESSION_SECRET,

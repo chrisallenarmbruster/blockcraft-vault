@@ -14,7 +14,6 @@ function Addresses() {
 
   return (
     <>
-      <br />
       <span className="h2 me-3 mb-3">Addresses Book</span>
       <Button variant="primary" onClick={() => navigate("/add-address")}>
         Add

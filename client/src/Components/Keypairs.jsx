@@ -2,6 +2,7 @@ import { useSelector } from "react-redux";
 import { Table, Button } from "react-bootstrap";
 import KeypairDelete from "./KeypairDelete";
 import { useNavigate } from "react-router-dom";
+import FetchEntriesButton from "./FetchEntriesButton";
 
 function Keypairs() {
   const keypairs =
@@ -20,7 +21,6 @@ function Keypairs() {
 
   return (
     <>
-      <br />
       <span className="h2 me-3 mb-3">Keychain</span>
       <Button variant="primary" onClick={() => navigate("/add-keypair")}>
         Add
@@ -56,6 +56,7 @@ function Keypairs() {
           ))}
         </tbody>
       </Table>
+      <FetchEntriesButton />
     </>
   );
 }
