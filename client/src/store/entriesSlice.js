@@ -125,7 +125,11 @@ async function hashEntry(entry) {
 const entriesSlice = createSlice({
   name: "entries",
   initialState: { data: {}, status: "idle", error: null },
-  reducers: {},
+  reducers: {
+    resetEntries: () => {
+      return { data: {}, status: "idle", error: null };
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchEntries.pending, (state) => {
@@ -142,5 +146,7 @@ const entriesSlice = createSlice({
       });
   },
 });
+
+export const { resetEntries } = entriesSlice.actions;
 
 export default entriesSlice.reducer;

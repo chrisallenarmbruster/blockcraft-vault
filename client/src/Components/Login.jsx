@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router-dom";
 import { processCredentials } from "../store/cryptoMemStore";
 import { login, logout, register } from "../store/authSlice";
 import {
@@ -19,8 +20,32 @@ function Login() {
   const [password, setPassword] = useState("1234");
   const [confirmPassword, setConfirmPassword] = useState("1234");
   const [mode, setMode] = useState("login");
+  const [isMobile, setIsMobile] = useState(
+    window.innerWidth > 576 ? false : true
+  );
+
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth > 576 ? false : true);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (location.pathname !== "/") {
+      navigate("/");
+    }
+  }, [location, navigate]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -56,13 +81,30 @@ function Login() {
   }
 
   return (
-    <Container className="d-sm-flex flex-column justify-content-center vh-100">
+    <Container className="d-flex flex-column justify-content-center vh-100">
       <Row className="justify-content-md-center">
-        <Col xs md="6" lg="4">
-          <Container className="border border-2 px-2 rounded pb-3 my-3">
-            <h1 className="mt-3 mb-4  d-flex align-items-center  h2">
-              <BsSafe className="me-2 text-secondary" /> Blockcraft Vault
+        <Col xs md="6" lg="5" xl="4">
+          <Container
+            className={
+              isMobile
+                ? "justify-content-center"
+                : "border border-2 px-2 rounded pb-3 my-3"
+            }
+          >
+            <h1
+              className={`${
+                isMobile ? "display-4" : "h2"
+              } mt-3 mb-1  d-flex align-items-center justify-content-center text-light fw-bold`}
+            >
+              <BsSafe className="me-2 text-light" /> Blockcraft Vault
             </h1>
+            <h2
+              className={`${
+                isMobile ? "display-4" : "h2"
+              } text-center mt-0 mb-4 text-light fw-bold`}
+            >
+              {mode === "login" ? "Login" : "Registration"}
+            </h2>
             <Form onSubmit={handleSubmit}>
               <FloatingLabel
                 controlId="floatingEmail"

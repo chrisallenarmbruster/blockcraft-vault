@@ -47,7 +47,7 @@ function NavBar() {
           {!isMobile && (
             <Navbar.Brand
               as={Link}
-              to="/home"
+              to="/assets"
               className="text-light d-none d-sm-block"
             >
               Blockcraft Vault
