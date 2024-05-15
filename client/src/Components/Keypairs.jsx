@@ -1,57 +1,51 @@
 import { useSelector } from "react-redux";
-import { Table, Button } from "react-bootstrap";
+import { Container, Row, Col, Button } from "react-bootstrap";
+import { BsPencil, BsNodePlus } from "react-icons/bs";
 import KeypairDelete from "./KeypairDelete";
 import { useNavigate } from "react-router-dom";
 
 function Keypairs() {
   const keypairs =
     useSelector((state) => state.data.unencryptedData?.keypairs) || [];
-  const entries = useSelector((state) => state.entries.data);
   const navigate = useNavigate();
 
   const formatKey = (key) => {
     return key.slice(0, 4) + "..." + key.slice(-4);
   };
 
-  const total = keypairs.reduce((sum, keypair) => {
-    const netAmount = entries[keypair.publicKey]?.meta?.netAmount || 0;
-    return sum + netAmount;
-  }, 0);
-
   return (
     <>
-      <span className="h2 me-3 mb-3">Keys</span>
-      <Button variant="primary" onClick={() => navigate("/add-keypair")}>
-        Add
-      </Button>
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>Label</th>
-            <th>Public Key</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {keypairs.map((keypair) => (
-            <tr key={keypair.nanoId}>
-              <td>{keypair.label}</td>
-              <td>{formatKey(keypair.publicKey)}</td>
-              <td>
-                <Button
-                  variant="primary"
-                  onClick={() =>
-                    navigate("/update-keypair", { state: { keypair } })
-                  }
-                >
-                  Update
-                </Button>
-                <KeypairDelete keypair={keypair} />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+      <div className="d-flex align-items-center mb-3 h2">
+        <span className="me-3">Keychain</span>
+        <BsNodePlus
+          className="text-primary cursor-pointer"
+          title="Add Keypair"
+          size={40}
+          onClick={() => navigate("/add-keypair")}
+        />
+      </div>
+      <Container>
+        <Row className="mt-3 mb-3 border-bottom fw-bold">
+          <Col xs={5}>Label</Col>
+          <Col xs={4}>Public Key</Col>
+          <Col xs={3}></Col>
+        </Row>
+        {keypairs.map((keypair) => (
+          <Row key={keypair.nanoId} className="pb-3 mb-3 border-bottom">
+            <Col xs={5}>{keypair.label}</Col>
+            <Col xs={4}>{formatKey(keypair.publicKey)}</Col>
+            <Col xs={3} className="text-center">
+              <BsPencil
+                className="cursor-pointer me-2 text-primary"
+                onClick={() =>
+                  navigate("/update-keypair", { state: { keypair } })
+                }
+              />
+              <KeypairDelete keypair={keypair} />
+            </Col>
+          </Row>
+        ))}
+      </Container>
     </>
   );
 }

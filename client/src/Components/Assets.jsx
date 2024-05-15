@@ -70,7 +70,7 @@ function Assets() {
                         .toString()
                         .substr(-2)}`;
                       return (
-                        <tr key={entry.nanoId}>
+                        <tr key={entry.entryId}>
                           <td>{formattedDate}</td>
                           <td>
                             {entry.from === keypair.publicKey
@@ -87,10 +87,10 @@ function Assets() {
                     })}
                   </tbody>
                 </Table>
-                <div className="text-center">
+                <div className="text-center text-light">
                   See more in{" "}
                   <a
-                    className="text-light"
+                    className="text-orange"
                     href={`${
                       import.meta.env.VITE_BLOCKCRAFT_NODE_URL
                     }/entries?publicKey=${keypair.publicKey}`}

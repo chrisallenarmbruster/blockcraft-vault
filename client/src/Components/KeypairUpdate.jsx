@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import elliptic from "elliptic";
-import { Button, Form } from "react-bootstrap";
+import { InputGroup, Button, Form } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { updateKeypair } from "../store/dataSlice";
 import PropTypes from "prop-types";
@@ -20,8 +21,9 @@ const selectKeypairs = createSelector(
 function KeypairUpdate() {
   const location = useLocation();
   const navigate = useNavigate();
-  const keypair = location.state.keypair;
+  const keypair = location.state?.keypair;
   const keypairs = useSelector(selectKeypairs);
+  const [showPassword, setShowPassword] = useState(false);
 
   const schema = yup
     .object({
@@ -122,14 +124,23 @@ function KeypairUpdate() {
 
       <Form.Group className="mb-3" controlId="updateFormPrivateKey">
         <Form.Label>Private Key</Form.Label>
-        <Form.Control
-          type="password"
-          {...register("privateKey")}
-          isInvalid={!!errors.privateKey}
-        />
-        <Form.Control.Feedback type="invalid">
-          {errors.privateKey?.message}
-        </Form.Control.Feedback>
+        <InputGroup>
+          <Form.Control
+            type={showPassword ? "text" : "password"}
+            {...register("privateKey")}
+            isInvalid={!!errors.privateKey}
+          />
+          <Button
+            variant="outline-secondary"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? "Hide" : "Show"}
+          </Button>
+
+          <Form.Control.Feedback type="invalid">
+            {errors.privateKey?.message}
+          </Form.Control.Feedback>
+        </InputGroup>
       </Form.Group>
 
       <Button variant="primary" type="submit">

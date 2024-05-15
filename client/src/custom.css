@@ -48,7 +48,7 @@ body {
 }
 
 .accordion-button {
-  background-color: var(--bs-gray-dark) !important;
+  background-color: var(--bs-dark) !important;
   color: var(--bs-light) !important;
 }
 
@@ -66,7 +66,7 @@ body {
 }
 
 .accordion-button:after {
-  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>") !important;
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fd7e14'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>") !important;
 }
 
 .fs-7 {
@@ -76,6 +76,28 @@ body {
 .container-left {
   margin-left: 0;
   margin-right: auto;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.dark-modal {
+  background-color: #343a40;
+  color: white;
+}
+
+.btn-close-color {
+  color: white;
+}
+
+.close {
+  color: #fff;
+  opacity: 1;
+}
+
+.text-orange {
+  color: var(--bs-orange) !important;
 }
 
 @media (min-width: 575.98px) {
