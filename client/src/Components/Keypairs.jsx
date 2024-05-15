@@ -2,7 +2,6 @@ import { useSelector } from "react-redux";
 import { Table, Button } from "react-bootstrap";
 import KeypairDelete from "./KeypairDelete";
 import { useNavigate } from "react-router-dom";
-import FetchEntriesButton from "./FetchEntriesButton";
 
 function Keypairs() {
   const keypairs =
@@ -21,17 +20,15 @@ function Keypairs() {
 
   return (
     <>
-      <span className="h2 me-3 mb-3">Keychain</span>
+      <span className="h2 me-3 mb-3">Keys</span>
       <Button variant="primary" onClick={() => navigate("/add-keypair")}>
         Add
       </Button>
-      Total: {total}
       <Table striped bordered hover>
         <thead>
           <tr>
             <th>Label</th>
             <th>Public Key</th>
-            <th>Balance</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -40,7 +37,6 @@ function Keypairs() {
             <tr key={keypair.nanoId}>
               <td>{keypair.label}</td>
               <td>{formatKey(keypair.publicKey)}</td>
-              <td>{entries[keypair.publicKey]?.meta?.netAmount || "N/A"}</td>
               <td>
                 <Button
                   variant="primary"
@@ -56,7 +52,6 @@ function Keypairs() {
           ))}
         </tbody>
       </Table>
-      <FetchEntriesButton />
     </>
   );
 }

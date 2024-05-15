@@ -12,7 +12,7 @@ export const fetchEntries = createAsyncThunk(
       const response = await axios.get(
         `${
           import.meta.env.VITE_BLOCKCRAFT_NODE_URL
-        }/api/entries?publicKey=${publicKey}&pageLimit=all`
+        }/api/entries?publicKey=${publicKey}&pageLimit=10&sort=desc`
       );
       return { publicKey, data: response.data };
     } catch (err) {

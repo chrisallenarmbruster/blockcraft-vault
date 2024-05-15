@@ -4,6 +4,7 @@ import * as yup from "yup";
 import { useDispatch } from "react-redux";
 import { addEntry } from "../store/entriesSlice";
 import { Form, Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 const schema = yup.object().shape({
   from: yup.string().matches(/^(02|03)[a-fA-F0-9]{64}$/, "Invalid public key"),
@@ -25,11 +26,13 @@ function EntryAdd() {
     resolver: yupResolver(schema),
   });
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const onSubmit = async (data) => {
     clearErrors("from");
     try {
       await dispatch(addEntry(data)).unwrap();
+      navigate("/assets");
     } catch (error) {
       if (error instanceof Error) {
         console.error("Failed to add entry", error.message);

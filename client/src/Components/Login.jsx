@@ -101,7 +101,7 @@ function Login() {
             <h2
               className={`${
                 isMobile ? "display-4" : "h2"
-              } text-center mt-0 mb-4 text-light fw-bold`}
+              } text-center mt-0 mb-5 text-secondary fw-bold`}
             >
               {mode === "login" ? "Login" : "Registration"}
             </h2>
