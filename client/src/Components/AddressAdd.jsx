@@ -79,7 +79,7 @@ function AddressAdd() {
         contentClassName="dark-modal"
       >
         <Modal.Header>
-          <Modal.Title>Add Keypair</Modal.Title>
+          <Modal.Title>Add Contact</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {" "}
