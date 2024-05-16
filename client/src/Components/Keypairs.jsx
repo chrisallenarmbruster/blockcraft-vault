@@ -1,15 +1,12 @@
 import { useSelector } from "react-redux";
-import { Container, Row, Col, Button } from "react-bootstrap";
-import { BsPencil, BsNodePlus } from "react-icons/bs";
+import { Container, Row, Col } from "react-bootstrap";
 import KeypairDelete from "./KeypairDelete";
-import { useNavigate } from "react-router-dom";
 import KeypairUpdate from "./KeypairUpdate";
 import KeypairAdd from "./KeypairAdd";
 
 function Keypairs() {
   const keypairs =
     useSelector((state) => state.data.unencryptedData?.keypairs) || [];
-  const navigate = useNavigate();
 
   const formatKey = (key) => {
     return key.slice(0, 4) + "..." + key.slice(-4);

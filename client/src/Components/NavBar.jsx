@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
+import { Modal, Button } from "react-bootstrap";
 import Navbar from "react-bootstrap/Navbar";
 import { useDispatch } from "react-redux";
 import { logout } from "../store/authSlice";
@@ -15,6 +16,7 @@ import {
   BsPersonRolodex,
   BsPower,
 } from "react-icons/bs";
+import EntryAdd from "./EntryAdd";
 
 function NavBar() {
   const dispatch = useDispatch();
@@ -22,6 +24,10 @@ function NavBar() {
   const [isMobile, setIsMobile] = useState(
     window.innerWidth > 576 ? false : true
   );
+  const [show, setShow] = useState(false);
+
+  const handleShow = () => setShow(true);
+  const handleClose = () => setShow(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -92,7 +98,17 @@ function NavBar() {
                 "Contacts"
               )}
             </Nav.Link>
-            <Nav.Link as={Link} to="/add-entry">
+            {/* <Nav.Link as={Link} to="/add-entry">
+              {isMobile ? (
+                <div className="d-flex flex-column align-items-center text-light">
+                  <BsBoxArrowUpRight size={30} />
+                  <div className="fs-7 mt-1">Send</div>
+                </div>
+              ) : (
+                "Send"
+              )}
+            </Nav.Link> */}
+            <Nav.Link onClick={handleShow}>
               {isMobile ? (
                 <div className="d-flex flex-column align-items-center text-light">
                   <BsBoxArrowUpRight size={30} />
@@ -133,6 +149,7 @@ function NavBar() {
           </Nav>
         </Container>
       </Navbar>
+      <EntryAdd show={show} handleClose={handleClose} />
     </>
   );
 }

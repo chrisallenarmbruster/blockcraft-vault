@@ -1,23 +1,25 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { Button, Form } from "react-bootstrap";
+import { Button, Form, Modal } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { updateAddress } from "../store/dataSlice";
 import PropTypes from "prop-types";
 import { createSelector } from "reselect";
-import { useLocation, useNavigate } from "react-router-dom";
+import { BsPencil } from "react-icons/bs";
 
 const selectAddresses = createSelector(
   (state) => state.data.unencryptedData,
   (unencryptedData) => unencryptedData?.addresses || []
 );
 
-function AddressUpdate() {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const address = location.state.address;
+function AddressUpdate({ address }) {
   const addresses = useSelector(selectAddresses);
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
 
   const schema = yup
     .object({
@@ -58,42 +60,96 @@ function AddressUpdate() {
     clearErrors("publicKey");
     try {
       await dispatch(updateAddress({ ...address, ...data })).unwrap();
-      navigate("/addresses");
     } catch (error) {
       console.error("Failed to update address:", error);
     }
+    handleClose();
   };
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit)}>
-      <Form.Group className="mb-3" controlId="updateFormLabel">
-        <Form.Label>Label</Form.Label>
-        <Form.Control
-          type="text"
-          {...register("label")}
-          isInvalid={!!errors.label}
-        />
-        <Form.Control.Feedback type="invalid">
-          {errors.label?.message}
-        </Form.Control.Feedback>
-      </Form.Group>
+    <>
+      <BsPencil className="cursor-pointer text-primary" onClick={handleShow} />
 
-      <Form.Group className="mb-3" controlId="updateFormPublicKey">
-        <Form.Label>Public Key</Form.Label>
-        <Form.Control
-          type="text"
-          {...register("publicKey")}
-          isInvalid={!!errors.publicKey}
-        />
-        <Form.Control.Feedback type="invalid">
-          {errors.publicKey?.message}
-        </Form.Control.Feedback>
-      </Form.Group>
+      <Modal
+        centered
+        show={show}
+        onHide={handleClose}
+        contentClassName="dark-modal"
+      >
+        <Modal.Header>
+          <Modal.Title>Edit Contact</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handleSubmit(onSubmit)} className="text-start">
+            <Form.Group className="mb-3" controlId="updateFormLabel">
+              <Form.Label>Label</Form.Label>
+              <Form.Control
+                type="text"
+                {...register("label")}
+                isInvalid={!!errors.label}
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.label?.message}
+              </Form.Control.Feedback>
+            </Form.Group>
 
-      <Button variant="primary" type="submit">
-        Update Address
-      </Button>
-    </Form>
+            <Form.Group className="mb-3" controlId="updateFormPublicKey">
+              <Form.Label>Public Key</Form.Label>
+              <Form.Control
+                type="text"
+                {...register("publicKey")}
+                isInvalid={!!errors.publicKey}
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.publicKey?.message}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            type="submit"
+            onClick={handleSubmit(onSubmit)}
+          >
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* <Form onSubmit={handleSubmit(onSubmit)}>
+        <Form.Group className="mb-3" controlId="updateFormLabel">
+          <Form.Label>Label</Form.Label>
+          <Form.Control
+            type="text"
+            {...register("label")}
+            isInvalid={!!errors.label}
+          />
+          <Form.Control.Feedback type="invalid">
+            {errors.label?.message}
+          </Form.Control.Feedback>
+        </Form.Group>
+
+        <Form.Group className="mb-3" controlId="updateFormPublicKey">
+          <Form.Label>Public Key</Form.Label>
+          <Form.Control
+            type="text"
+            {...register("publicKey")}
+            isInvalid={!!errors.publicKey}
+          />
+          <Form.Control.Feedback type="invalid">
+            {errors.publicKey?.message}
+          </Form.Control.Feedback>
+        </Form.Group>
+
+        <Button variant="primary" type="submit">
+          Update Address
+        </Button>
+      </Form> */}
+    </>
   );
 }
 

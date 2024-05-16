@@ -1,12 +1,13 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { Button, Form } from "react-bootstrap";
+import { Modal, Button, Form } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import { addAddress } from "../store/dataSlice";
 import { useSelector } from "react-redux";
 import { createSelector } from "reselect";
-import { useNavigate } from "react-router-dom";
+import { BsPersonAdd } from "react-icons/bs";
 
 const selectAddresses = createSelector(
   (state) => state.data.unencryptedData,
@@ -14,8 +15,14 @@ const selectAddresses = createSelector(
 );
 
 function AddressAdd() {
-  const navigate = useNavigate();
   const addresses = useSelector(selectAddresses);
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => {
+    reset();
+    setShow(false);
+  };
+  const handleShow = () => setShow(true);
 
   const schema = yup
     .object({
@@ -42,6 +49,7 @@ function AddressAdd() {
     handleSubmit,
     formState: { errors },
     clearErrors,
+    reset,
   } = useForm({
     resolver: yupResolver(schema),
   });
@@ -52,42 +60,69 @@ function AddressAdd() {
     clearErrors("publicKey");
     try {
       await dispatch(addAddress(data)).unwrap();
-      navigate("/addresses");
     } catch (error) {
       console.error("Failed to add address", error);
     }
+    handleClose();
   };
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit)}>
-      <Form.Group className="mb-3" controlId="formLabel">
-        <Form.Label>Label</Form.Label>
-        <Form.Control
-          type="text"
-          {...register("label")}
-          isInvalid={!!errors.label}
-        />
-        <Form.Control.Feedback type="invalid">
-          {errors.label?.message}
-        </Form.Control.Feedback>
-      </Form.Group>
+    <>
+      <BsPersonAdd
+        className="cursor-pointer text-primary"
+        onClick={handleShow}
+      />
+      <Modal
+        centered
+        show={show}
+        onHide={handleClose}
+        contentClassName="dark-modal"
+      >
+        <Modal.Header>
+          <Modal.Title>Add Keypair</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {" "}
+          <Form onSubmit={handleSubmit(onSubmit)}>
+            <Form.Group className="mb-3" controlId="formLabel">
+              <Form.Label>Label</Form.Label>
+              <Form.Control
+                type="text"
+                {...register("label")}
+                isInvalid={!!errors.label}
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.label?.message}
+              </Form.Control.Feedback>
+            </Form.Group>
 
-      <Form.Group className="mb-3" controlId="formPublicKey">
-        <Form.Label>Public Key</Form.Label>
-        <Form.Control
-          type="text"
-          {...register("publicKey")}
-          isInvalid={!!errors.publicKey}
-        />
-        <Form.Control.Feedback type="invalid">
-          {errors.publicKey?.message}
-        </Form.Control.Feedback>
-      </Form.Group>
-
-      <Button variant="primary" type="submit">
-        Add Address
-      </Button>
-    </Form>
+            <Form.Group className="mb-3" controlId="formPublicKey">
+              <Form.Label>Public Key</Form.Label>
+              <Form.Control
+                type="text"
+                {...register("publicKey")}
+                isInvalid={!!errors.publicKey}
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.publicKey?.message}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            type="submit"
+            onClick={handleSubmit(onSubmit)}
+          >
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
   );
 }
 
