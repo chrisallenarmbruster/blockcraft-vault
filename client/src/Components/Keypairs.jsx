@@ -3,6 +3,8 @@ import { Container, Row, Col, Button } from "react-bootstrap";
 import { BsPencil, BsNodePlus } from "react-icons/bs";
 import KeypairDelete from "./KeypairDelete";
 import { useNavigate } from "react-router-dom";
+import KeypairUpdate from "./KeypairUpdate";
+import KeypairAdd from "./KeypairAdd";
 
 function Keypairs() {
   const keypairs =
@@ -14,15 +16,10 @@ function Keypairs() {
   };
 
   return (
-    <>
+    <Container>
       <div className="d-flex align-items-center mb-3 h2">
         <span className="me-3">Keychain</span>
-        <BsNodePlus
-          className="text-primary cursor-pointer"
-          title="Add Keypair"
-          size={40}
-          onClick={() => navigate("/add-keypair")}
-        />
+        <KeypairAdd />
       </div>
       <Container>
         <Row className="mt-3 mb-3 border-bottom fw-bold">
@@ -34,19 +31,18 @@ function Keypairs() {
           <Row key={keypair.nanoId} className="pb-3 mb-3 border-bottom">
             <Col xs={5}>{keypair.label}</Col>
             <Col xs={4}>{formatKey(keypair.publicKey)}</Col>
-            <Col xs={3} className="text-center">
-              <BsPencil
-                className="cursor-pointer me-2 text-primary"
-                onClick={() =>
-                  navigate("/update-keypair", { state: { keypair } })
-                }
-              />
-              <KeypairDelete keypair={keypair} />
+            <Col xs={3} className="text-center d-flex ">
+              <div className="me-2">
+                <KeypairUpdate keypair={keypair} />
+              </div>
+              <div>
+                <KeypairDelete keypair={keypair} />
+              </div>
             </Col>
           </Row>
         ))}
       </Container>
-    </>
+    </Container>
   );
 }
 

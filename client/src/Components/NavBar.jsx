@@ -38,11 +38,15 @@ function NavBar() {
   return (
     <>
       {isMobile && (
-        <Container className="d-flex align-items-center fs-5 mt-1">
+        <Container className="d-flex align-items-center fs-5 mt-1 container-xl">
           <BsSafe className="me-2 text-light" /> Blockcraft Vault
         </Container>
       )}
-      <Navbar variant="dark" fixed={isMobile ? "bottom" : "top"}>
+      <Navbar
+        variant="dark"
+        fixed={isMobile ? "bottom" : "top"}
+        className="container-xl"
+      >
         <Container>
           {!isMobile && (
             <Navbar.Brand

@@ -1,13 +1,14 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import elliptic from "elliptic";
-import { Button, Form } from "react-bootstrap";
+import { Modal, Button, Form, InputGroup } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import { addKeypair } from "../store/dataSlice";
 import { useSelector } from "react-redux";
 import { createSelector } from "reselect";
-import { useNavigate } from "react-router-dom";
+import { BsNodePlus } from "react-icons/bs";
 
 const EC = elliptic.ec;
 const ec = new EC("secp256k1");
@@ -18,8 +19,15 @@ const selectKeypairs = createSelector(
 );
 
 function KeypairAdd() {
-  const navigate = useNavigate();
   const keypairs = useSelector(selectKeypairs);
+  const [showPassword, setShowPassword] = useState(false);
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => {
+    reset();
+    setShow(false);
+  };
+  const handleShow = () => setShow(true);
 
   const schema = yup
     .object({
@@ -54,6 +62,7 @@ function KeypairAdd() {
     formState: { errors },
     setError,
     clearErrors,
+    reset,
   } = useForm({
     resolver: yupResolver(schema),
   });
@@ -61,7 +70,6 @@ function KeypairAdd() {
 
   const onSubmit = async (data) => {
     console.log(data);
-    // Perform key pair validation
     if (!validateKeyPair(data.privateKey, data.publicKey)) {
       setError("publicKey", {
         type: "manual",
@@ -71,11 +79,11 @@ function KeypairAdd() {
       clearErrors("publicKey");
       try {
         await dispatch(addKeypair(data)).unwrap();
-        navigate("/keypairs");
       } catch (error) {
         console.error("Failed to add keypair:", error);
       }
     }
+    handleClose();
   };
 
   function validateKeyPair(privateKey, publicKey) {
@@ -90,47 +98,83 @@ function KeypairAdd() {
   }
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit)}>
-      <Form.Group className="mb-3" controlId="formLabel">
-        <Form.Label>Label</Form.Label>
-        <Form.Control
-          type="text"
-          {...register("label")}
-          isInvalid={!!errors.label}
-        />
-        <Form.Control.Feedback type="invalid">
-          {errors.label?.message}
-        </Form.Control.Feedback>
-      </Form.Group>
+    <>
+      <BsNodePlus
+        className="cursor-pointer text-primary"
+        onClick={handleShow}
+      />
+      <Modal
+        centered
+        show={show}
+        onHide={handleClose}
+        contentClassName="dark-modal"
+      >
+        <Modal.Header>
+          <Modal.Title>Add Keypair</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {" "}
+          <Form onSubmit={handleSubmit(onSubmit)}>
+            <Form.Group className="mb-3" controlId="formLabel">
+              <Form.Label>Label</Form.Label>
+              <Form.Control
+                type="text"
+                {...register("label")}
+                isInvalid={!!errors.label}
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.label?.message}
+              </Form.Control.Feedback>
+            </Form.Group>
 
-      <Form.Group className="mb-3" controlId="formPublicKey">
-        <Form.Label>Public Key</Form.Label>
-        <Form.Control
-          type="text"
-          {...register("publicKey")}
-          isInvalid={!!errors.publicKey}
-        />
-        <Form.Control.Feedback type="invalid">
-          {errors.publicKey?.message}
-        </Form.Control.Feedback>
-      </Form.Group>
+            <Form.Group className="mb-3" controlId="formPublicKey">
+              <Form.Label>Public Key</Form.Label>
+              <Form.Control
+                type="text"
+                {...register("publicKey")}
+                isInvalid={!!errors.publicKey}
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.publicKey?.message}
+              </Form.Control.Feedback>
+            </Form.Group>
 
-      <Form.Group className="mb-3" controlId="formPrivateKey">
-        <Form.Label>Private Key</Form.Label>
-        <Form.Control
-          type="password"
-          {...register("privateKey")}
-          isInvalid={!!errors.privateKey}
-        />
-        <Form.Control.Feedback type="invalid">
-          {errors.privateKey?.message}
-        </Form.Control.Feedback>
-      </Form.Group>
+            <Form.Group className="mb-3" controlId="updateFormPrivateKey">
+              <Form.Label>Private Key</Form.Label>
+              <InputGroup className="mb-5">
+                <Form.Control
+                  type={showPassword ? "text" : "password"}
+                  {...register("privateKey")}
+                  isInvalid={!!errors.privateKey}
+                />
+                <Button
+                  variant="outline-secondary"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </Button>
 
-      <Button variant="primary" type="submit">
-        Add Keypair
-      </Button>
-    </Form>
+                <Form.Control.Feedback type="invalid">
+                  {errors.privateKey?.message}
+                </Form.Control.Feedback>
+              </InputGroup>
+            </Form.Group>
+          </Form>
+        </Modal.Body>{" "}
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            type="submit"
+            onClick={handleSubmit(onSubmit)}
+          >
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
   );
 }
 

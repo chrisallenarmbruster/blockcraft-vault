@@ -25,7 +25,7 @@ function Assets() {
 
   return (
     <>
-      <Container className="mt-0 mb-3 container-md container-left" fluid="md">
+      <Container className="mt-0 mb-3 container-left">
         <div className="h2 mb-3 text-secondary">
           Assets: <span className="text-light">{total}</span>
         </div>

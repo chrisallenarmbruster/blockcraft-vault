@@ -124,8 +124,20 @@ body {
   }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768.02px) {
   .container-md {
     max-width: 720px;
+  }
+}
+
+@media (min-width: 992.02px) {
+  .container-lg {
+    max-width: 960px;
+  }
+}
+
+@media (min-width: 1200.02px) {
+  .container-xl {
+    max-width: 1140px;
   }
 }
