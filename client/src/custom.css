@@ -58,6 +58,7 @@ body {
 
 .accordion-button:not(.collapsed) {
   color: var(--bs-orange) !important;
+  font-weight: bold;
 }
 
 .accordion-body {
@@ -98,6 +99,10 @@ body {
 
 .text-orange {
   color: var(--bs-orange) !important;
+}
+
+.mw-375 {
+  min-width: 375px;
 }
 
 @media (min-width: 575.98px) {

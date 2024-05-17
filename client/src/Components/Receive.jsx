@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Accordion, Container, Button } from "react-bootstrap";
+import { QRCode } from "react-qrcode";
 
 function Receive() {
   const [copiedKeys, setCopiedKeys] = useState({});
@@ -51,9 +52,13 @@ function Receive() {
                 {keypair.label} - {formatKey(keypair.publicKey)}
               </Accordion.Header>
               <Accordion.Body>
-                <div className="text-light text-center fw-bold">
-                  Public Key
-                  <div className="my-3 text-wrap text-break fw-normal">
+                <div className="text-center">
+                  <div className="text-light fw-bold fs-4">Public Key</div>
+                  <div className="my-3">
+                    <QRCode value={keypair.publicKey} width="250" />
+                  </div>
+
+                  <div className="my-3 text-wrap text-break text-light">
                     {keypair.publicKey}
                   </div>
                   <Button

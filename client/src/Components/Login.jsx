@@ -81,7 +81,7 @@ function Login() {
   }
 
   return (
-    <Container className="d-flex flex-column justify-content-center vh-100">
+    <Container className="d-flex flex-column justify-content-center vh-100 mw-375">
       <Row className="justify-content-md-center">
         <Col xs md="6" lg="5" xl="4">
           <Container

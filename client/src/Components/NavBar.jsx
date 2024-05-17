@@ -44,14 +44,14 @@ function NavBar() {
   return (
     <>
       {isMobile && (
-        <Container className="d-flex align-items-center fs-5 mt-1 container-xl">
+        <Container className="d-flex align-items-center fs-5 mt-1 container-xl mw-375">
           <BsSafe className="me-2 text-light" /> Blockcraft Vault
         </Container>
       )}
       <Navbar
         variant="dark"
         fixed={isMobile ? "bottom" : "top"}
-        className="container-xl"
+        className="container-xl mw-375"
       >
         <Container>
           {!isMobile && (
@@ -98,16 +98,6 @@ function NavBar() {
                 "Contacts"
               )}
             </Nav.Link>
-            {/* <Nav.Link as={Link} to="/add-entry">
-              {isMobile ? (
-                <div className="d-flex flex-column align-items-center text-light">
-                  <BsBoxArrowUpRight size={30} />
-                  <div className="fs-7 mt-1">Send</div>
-                </div>
-              ) : (
-                "Send"
-              )}
-            </Nav.Link> */}
             <Nav.Link onClick={handleShow}>
               {isMobile ? (
                 <div className="d-flex flex-column align-items-center text-light">
