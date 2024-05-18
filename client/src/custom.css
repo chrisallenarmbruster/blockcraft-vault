@@ -64,6 +64,7 @@ body {
 .accordion-body {
   background-color: var(--bs-dark) !important;
   color: var(--bs-orange) !important;
+  border-radius: 0 0 6px 6px;
 }
 
 .accordion-button:after {
@@ -95,6 +96,11 @@ body {
 .close {
   color: #fff;
   opacity: 1;
+}
+
+.rounded-right {
+  border-top-right-radius: 6px !important;
+  border-bottom-right-radius: 6px !important;
 }
 
 .text-orange {

@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { Button, Form, Modal } from "react-bootstrap";
+import { Button, Form, Modal, InputGroup } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { updateAddress } from "../store/dataSlice";
 import PropTypes from "prop-types";
 import { createSelector } from "reselect";
 import { BsPencil } from "react-icons/bs";
+import QRCodeScanner from "./QRCodeScanner";
 
 const selectAddresses = createSelector(
   (state) => state.data.unencryptedData,
@@ -18,7 +19,10 @@ function AddressUpdate({ address }) {
   const addresses = useSelector(selectAddresses);
   const [show, setShow] = useState(false);
 
-  const handleClose = () => setShow(false);
+  const handleClose = () => {
+    reset();
+    setShow(false);
+  };
   const handleShow = () => setShow(true);
 
   const schema = yup
@@ -47,23 +51,34 @@ function AddressUpdate({ address }) {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
     clearErrors,
+    reset,
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: address,
   });
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    reset(address);
+  }, [address, reset]);
+
   const onSubmit = async (data) => {
     console.log(data);
     clearErrors("publicKey");
     try {
       await dispatch(updateAddress({ ...address, ...data })).unwrap();
+      handleClose();
     } catch (error) {
       console.error("Failed to update address:", error);
     }
-    handleClose();
+  };
+
+  const handleScanSuccess = (data) => {
+    console.log("Callback received scanned data:", data.text);
+    setValue("publicKey", data.text);
   };
 
   return (
@@ -92,17 +107,21 @@ function AddressUpdate({ address }) {
                 {errors.label?.message}
               </Form.Control.Feedback>
             </Form.Group>
-
-            <Form.Group className="mb-3" controlId="updateFormPublicKey">
+            <Form.Group className="mb-3" controlId="formPublicKey">
               <Form.Label>Public Key</Form.Label>
-              <Form.Control
-                type="text"
-                {...register("publicKey")}
-                isInvalid={!!errors.publicKey}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.publicKey?.message}
-              </Form.Control.Feedback>
+              <InputGroup>
+                <Form.Control
+                  type="text"
+                  {...register("publicKey")}
+                  isInvalid={!!errors.publicKey}
+                />
+                <Button variant="outline-secondary rounded-right">
+                  <QRCodeScanner onScanSuccess={handleScanSuccess} />
+                </Button>
+                <Form.Control.Feedback type="invalid">
+                  {errors.publicKey?.message}
+                </Form.Control.Feedback>
+              </InputGroup>
             </Form.Group>
           </Form>
         </Modal.Body>
@@ -119,36 +138,6 @@ function AddressUpdate({ address }) {
           </Button>
         </Modal.Footer>
       </Modal>
-
-      {/* <Form onSubmit={handleSubmit(onSubmit)}>
-        <Form.Group className="mb-3" controlId="updateFormLabel">
-          <Form.Label>Label</Form.Label>
-          <Form.Control
-            type="text"
-            {...register("label")}
-            isInvalid={!!errors.label}
-          />
-          <Form.Control.Feedback type="invalid">
-            {errors.label?.message}
-          </Form.Control.Feedback>
-        </Form.Group>
-
-        <Form.Group className="mb-3" controlId="updateFormPublicKey">
-          <Form.Label>Public Key</Form.Label>
-          <Form.Control
-            type="text"
-            {...register("publicKey")}
-            isInvalid={!!errors.publicKey}
-          />
-          <Form.Control.Feedback type="invalid">
-            {errors.publicKey?.message}
-          </Form.Control.Feedback>
-        </Form.Group>
-
-        <Button variant="primary" type="submit">
-          Update Address
-        </Button>
-      </Form> */}
     </>
   );
 }

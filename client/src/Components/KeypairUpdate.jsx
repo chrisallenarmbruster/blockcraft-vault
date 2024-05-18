@@ -8,7 +8,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateKeypair } from "../store/dataSlice";
 import PropTypes from "prop-types";
 import { createSelector } from "reselect";
-import { BsPencil } from "react-icons/bs";
+import { BsPencil, BsEye, BsEyeSlash } from "react-icons/bs";
+import QRCodeScanner from "./QRCodeScanner";
 
 const EC = elliptic.ec;
 const ec = new EC("secp256k1");
@@ -23,7 +24,10 @@ function KeypairUpdate({ keypair }) {
   const [showPassword, setShowPassword] = useState(false);
   const [show, setShow] = useState(false);
 
-  const handleClose = () => setShow(false);
+  const handleClose = () => {
+    reset();
+    setShow(false);
+  };
   const handleShow = () => setShow(true);
 
   const schema = yup
@@ -59,9 +63,11 @@ function KeypairUpdate({ keypair }) {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
     setError,
     clearErrors,
+    reset,
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: keypair,
@@ -79,11 +85,16 @@ function KeypairUpdate({ keypair }) {
       clearErrors("publicKey");
       try {
         await dispatch(updateKeypair({ ...keypair, ...data })).unwrap();
+        handleClose();
       } catch (error) {
         console.error("Failed to update keypair:", error);
       }
     }
-    handleClose();
+  };
+
+  const handleScanSuccess = (data) => {
+    console.log("Callback received scanned data:", data.text);
+    setValue("publicKey", data.text);
   };
 
   function validateKeyPair(privateKey, publicKey) {
@@ -124,16 +135,21 @@ function KeypairUpdate({ keypair }) {
               </Form.Control.Feedback>
             </Form.Group>
 
-            <Form.Group className="mb-3" controlId="updateFormPublicKey">
+            <Form.Group className="mb-3" controlId="formPublicKey">
               <Form.Label>Public Key</Form.Label>
-              <Form.Control
-                type="text"
-                {...register("publicKey")}
-                isInvalid={!!errors.publicKey}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.publicKey?.message}
-              </Form.Control.Feedback>
+              <InputGroup>
+                <Form.Control
+                  type="text"
+                  {...register("publicKey")}
+                  isInvalid={!!errors.publicKey}
+                />
+                <Button variant="outline-secondary rounded-right">
+                  <QRCodeScanner onScanSuccess={handleScanSuccess} />
+                </Button>
+                <Form.Control.Feedback type="invalid">
+                  {errors.publicKey?.message}
+                </Form.Control.Feedback>
+              </InputGroup>
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="updateFormPrivateKey">
@@ -145,10 +161,14 @@ function KeypairUpdate({ keypair }) {
                   isInvalid={!!errors.privateKey}
                 />
                 <Button
-                  variant="outline-secondary"
+                  variant="outline-secondary rounded-right"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassword ? "Hide" : "Show"}
+                  {showPassword ? (
+                    <BsEyeSlash className="text-light" />
+                  ) : (
+                    <BsEye className="text-light" />
+                  )}
                 </Button>
 
                 <Form.Control.Feedback type="invalid">

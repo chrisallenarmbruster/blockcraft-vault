@@ -8,6 +8,7 @@ import Addresses from "./Addresses";
 import NavBar from "./NavBar";
 import Assets from "./Assets";
 import Receive from "./Receive";
+import QRCodeScanner from "./QRCodeScanner";
 
 function NotFound() {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ function App() {
               <Route path="/keypairs" element={<Keypairs />} />
               <Route path="/addresses" element={<Addresses />} />
               <Route path="/receive" element={<Receive />} />
+              <Route path="/scan" element={<QRCodeScanner />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Container>

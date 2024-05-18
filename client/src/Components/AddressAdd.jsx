@@ -2,12 +2,13 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button, Form, InputGroup } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import { addAddress } from "../store/dataSlice";
 import { useSelector } from "react-redux";
 import { createSelector } from "reselect";
 import { BsPersonAdd } from "react-icons/bs";
+import QRCodeScanner from "./QRCodeScanner";
 
 const selectAddresses = createSelector(
   (state) => state.data.unencryptedData,
@@ -47,6 +48,7 @@ function AddressAdd() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
     clearErrors,
     reset,
@@ -60,10 +62,15 @@ function AddressAdd() {
     clearErrors("publicKey");
     try {
       await dispatch(addAddress(data)).unwrap();
+      handleClose();
     } catch (error) {
       console.error("Failed to add address", error);
     }
-    handleClose();
+  };
+
+  const handleScanSuccess = (data) => {
+    console.log("Callback received scanned data:", data.text);
+    setValue("publicKey", data.text);
   };
 
   return (
@@ -95,17 +102,21 @@ function AddressAdd() {
                 {errors.label?.message}
               </Form.Control.Feedback>
             </Form.Group>
-
             <Form.Group className="mb-3" controlId="formPublicKey">
               <Form.Label>Public Key</Form.Label>
-              <Form.Control
-                type="text"
-                {...register("publicKey")}
-                isInvalid={!!errors.publicKey}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.publicKey?.message}
-              </Form.Control.Feedback>
+              <InputGroup>
+                <Form.Control
+                  type="text"
+                  {...register("publicKey")}
+                  isInvalid={!!errors.publicKey}
+                />
+                <Button variant="outline-secondary" className="rounded-right">
+                  <QRCodeScanner onScanSuccess={handleScanSuccess} />
+                </Button>
+                <Form.Control.Feedback type="invalid">
+                  {errors.publicKey?.message}
+                </Form.Control.Feedback>
+              </InputGroup>
             </Form.Group>
           </Form>
         </Modal.Body>
