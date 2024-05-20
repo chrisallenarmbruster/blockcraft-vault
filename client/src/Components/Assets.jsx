@@ -92,7 +92,7 @@ function Assets() {
                   <a
                     className="text-orange"
                     href={`${
-                      import.meta.env.VITE_BLOCKCRAFT_NODE_URL
+                      import.meta.env.VITE_BLOCKCRAFT_NODE_WEB_URL
                     }/entries?publicKey=${keypair.publicKey}`}
                     target="_blank"
                     rel="noopener noreferrer"
