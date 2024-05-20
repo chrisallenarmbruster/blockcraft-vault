@@ -44,7 +44,7 @@ function EntryAdd({ show, handleClose }) {
   const dispatch = useDispatch();
 
   const [selectedPrivateKey, setSelectedPrivateKey] = useState("");
-  const [selectedOption, setSelectedOption] = useState(null);
+  const [selectedToOption, setSelectedToOption] = useState(null);
   const [toInputValue, setToInputValue] = useState("");
 
   const addresses = useSelector(
@@ -58,13 +58,18 @@ function EntryAdd({ show, handleClose }) {
     if (show) {
       setSelectedPrivateKey("");
       reset();
-      setSelectedOption(null);
+      setSelectedToOption(null);
     }
   }, [show, reset]);
 
   useEffect(() => {
     setValue("privateKey", selectedPrivateKey);
   }, [selectedPrivateKey, setValue]);
+
+  useEffect(() => {
+    register("from");
+    register("to");
+  }, [register]);
 
   const onSubmit = async (data) => {
     clearErrors("from");
@@ -81,19 +86,19 @@ function EntryAdd({ show, handleClose }) {
     handleClose();
   };
 
-  const handleFromSelectChange = (event) => {
-    setValue("from", event.target.value);
+  const handleFromSelectChange = (selectedFromOption) => {
+    setValue("from", selectedFromOption.value);
     clearErrors("from");
     const selectedKeypair = keypairs.find(
-      (keypair) => keypair.publicKey === event.target.value
+      (keypair) => keypair.publicKey === selectedFromOption.value
     );
     setSelectedPrivateKey(selectedKeypair ? selectedKeypair.privateKey : "");
     trigger("from");
   };
 
-  const handleToSelectChange = async (selectedOption) => {
-    setSelectedOption(selectedOption);
-    setValue("to", selectedOption ? selectedOption.value : "", {
+  const handleToSelectChange = async (selectedToOption) => {
+    setSelectedToOption(selectedToOption);
+    setValue("to", selectedToOption ? selectedToOption.value : "", {
       shouldValidate: true,
     });
     trigger("to");
@@ -102,7 +107,7 @@ function EntryAdd({ show, handleClose }) {
   const handleScanSuccess = (data) => {
     console.log("Callback received scanned data:", data.text);
     setValue("to", data.text);
-    setSelectedOption({ value: data.text, label: data.text });
+    setSelectedToOption({ value: data.text, label: data.text });
   };
 
   const options = addresses.map((address) => ({
@@ -128,22 +133,45 @@ function EntryAdd({ show, handleClose }) {
           <Form onSubmit={handleSubmit(onSubmit)}>
             <Form.Group className="mb-3" controlId="formFrom">
               <Form.Label>From</Form.Label>
-              <Form.Select
-                {...register("from")}
+              <Select
+                options={keypairs.map((keypair) => ({
+                  value: keypair.publicKey,
+                  label: `${keypair.label} - ${keypair.publicKey.slice(
+                    0,
+                    4
+                  )}...${keypair.publicKey.slice(-4)}`,
+                }))}
                 isInvalid={!!errors.from}
                 onChange={handleFromSelectChange}
-              >
-                <option value="">Select keypair</option>
-                {keypairs.map((keypair, index) => (
-                  <option key={index} value={keypair.publicKey}>
-                    {keypair.label} - {keypair.publicKey.slice(0, 4)}...
-                    {keypair.publicKey.slice(-4)}
-                  </option>
-                ))}
-              </Form.Select>
-              <Form.Control.Feedback type="invalid">
-                {errors.from?.message}
-              </Form.Control.Feedback>
+                styles={{
+                  control: (provided) => ({
+                    ...provided,
+                    width: "100%",
+                    flex: 1,
+                    borderTopRightRadius: 0,
+                    borderBottomRightRadius: 0,
+                    borderTopLeftRadius: 6,
+                    borderBottomLeftRadius: 6,
+                  }),
+                  container: (provided) => ({
+                    ...provided,
+                    width: "100%",
+                  }),
+                  option: (provided) => ({
+                    ...provided,
+                    color: "hsl(0, 0%, 20%)",
+                  }),
+                  placeholder: (provided) => ({
+                    ...provided,
+                    color: "hsl(0, 0%, 20%)",
+                  }),
+                }}
+              />
+              {errors.from && (
+                <div className="invalid-feedback d-block">
+                  {errors.from.message}
+                </div>
+              )}
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formPrivateKey">
@@ -156,26 +184,14 @@ function EntryAdd({ show, handleClose }) {
 
             <Form.Group className="mb-3" controlId="formTo">
               <Form.Label>To</Form.Label>
-              {/* <Form.Select {...register("to")} isInvalid={!!errors.to}>
-                <option value="">Select a contact</option>
-                {addresses.map((address, index) => (
-                  <option key={index} value={address.publicKey}>
-                    {address.label} - {address.publicKey.slice(0, 4)}...
-                    {address.publicKey.slice(-4)}
-                  </option>
-                ))}
-              </Form.Select> */}
-
               <ButtonGroup style={{ width: "100%", display: "flex" }}>
                 <Creatable
                   options={options}
                   isInvalid={!!errors.to}
-                  // isClearable
-                  // isSearchable
                   onChange={handleToSelectChange}
                   onInputChange={(value) => setToInputValue(value)}
                   inputValue={toInputValue}
-                  value={selectedOption}
+                  value={selectedToOption}
                   placeholder="Select contact, type key or scan"
                   styles={{
                     control: (provided) => ({
@@ -210,15 +226,9 @@ function EntryAdd({ show, handleClose }) {
                 </Button>
               </ButtonGroup>
               {errors.to && (
-                <p
-                  style={{
-                    color: "#dc3545",
-                    fontSize: "14px",
-                    margin: "4px 0px 0px",
-                  }}
-                >
+                <div className="invalid-feedback d-block">
                   {errors.to.message}
-                </p>
+                </div>
               )}
               <Form.Control.Feedback type="invalid">
                 {errors.to?.message}
