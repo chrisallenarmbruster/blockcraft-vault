@@ -28,7 +28,7 @@ function App() {
       {isAuthenticated && (
         <>
           <NavBar />
-          <Container className="mt-3 mt-4rem mb-mobile-6rem container-xl mw-375">
+          <Container className="mt-3 mt-4rem mb-mobile-6rem container-xl mw-375 container-xs-gutter">
             <Routes>
               <Route path="/" element={<Assets />} />
               <Route path="/assets" element={<Assets />} />

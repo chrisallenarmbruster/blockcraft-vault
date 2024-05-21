@@ -35,7 +35,7 @@ function Receive() {
 
   return (
     <>
-      <Container className="mt-0 mb-3 container-left">
+      <Container className="mt-0 mb-3 container-left container-xs-gutter">
         <div className="h2 mb-3 text-light">Receive Assets</div>
         <p>Select account to receive assets into:</p>
         {keypairs.map((keypair, index) => (

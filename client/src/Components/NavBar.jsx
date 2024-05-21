@@ -51,7 +51,7 @@ function NavBar() {
       <Navbar
         variant="dark"
         fixed={isMobile ? "bottom" : "top"}
-        className="container-xl mw-375"
+        className={`container-xl mw-375 ${isMobile ? "pb-0" : ""}`}
       >
         <Container>
           {!isMobile && (

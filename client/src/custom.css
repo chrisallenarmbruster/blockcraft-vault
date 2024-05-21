@@ -133,6 +133,10 @@ body {
   .mb-mobile-6rem {
     margin-bottom: 6rem !important;
   }
+
+  .container-xs-gutter {
+    --bs-gutter-x: 1rem;
+  }
 }
 
 @media (min-width: 768.02px) {
