@@ -25,6 +25,8 @@ function NavBar() {
     window.innerWidth > 576 ? false : true
   );
   const [show, setShow] = useState(false);
+  const [resizeCounter, setResizeCounter] = useState(0);
+  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
 
   const handleShow = () => setShow(true);
   const handleClose = () => setShow(false);
@@ -32,6 +34,8 @@ function NavBar() {
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth > 576 ? false : true);
+      setViewportHeight(window.innerHeight);
+      setResizeCounter((prevCount) => prevCount + 1);
     };
 
     window.addEventListener("resize", handleResize);
@@ -40,6 +44,21 @@ function NavBar() {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  useEffect(() => {
+    const checkViewportHeight = () => {
+      const currentHeight = window.innerHeight;
+      if (currentHeight !== viewportHeight) {
+        setViewportHeight(currentHeight);
+      }
+    };
+
+    const intervalId = setInterval(checkViewportHeight, 150); // Check every 150ms
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [viewportHeight]);
 
   return (
     <>
