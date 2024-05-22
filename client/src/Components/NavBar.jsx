@@ -25,7 +25,6 @@ function NavBar() {
     window.innerWidth > 576 ? false : true
   );
   const [show, setShow] = useState(false);
-  const [resizeCounter, setResizeCounter] = useState(0);
   const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
 
   const handleShow = () => setShow(true);
@@ -35,7 +34,6 @@ function NavBar() {
     const handleResize = () => {
       setIsMobile(window.innerWidth > 576 ? false : true);
       setViewportHeight(window.innerHeight);
-      setResizeCounter((prevCount) => prevCount + 1);
     };
 
     window.addEventListener("resize", handleResize);
@@ -70,7 +68,8 @@ function NavBar() {
       <Navbar
         variant="dark"
         fixed={isMobile ? "bottom" : "top"}
-        className={`container-xl mw-375 ${isMobile ? "pb-0" : ""}`}
+        className={`container-xl mw-375 ${isMobile ? "pb-0" : "pt-0"}`}
+        style={isMobile ? { position: "fixed", bottom: 0, width: "100%" } : {}}
       >
         <Container>
           {!isMobile && (
@@ -91,7 +90,7 @@ function NavBar() {
               {isMobile ? (
                 <div className="d-flex flex-column align-items-center text-light">
                   <BsPiggyBank size={30} />
-                  <div className="fs-7 mt-1">Assets</div>
+                  <div className="fs-7 mt-1">{viewportHeight}</div>
                 </div>
               ) : (
                 "Assets"
