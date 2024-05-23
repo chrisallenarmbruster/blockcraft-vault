@@ -16,6 +16,7 @@
     "test": "concurrently \"npm run test:client\" \"npm run test:server\"",
     "test:client": "cd client && npm run test",
     "test:server": "cd server && npm run test",
+    "preview": "npm run build:client && cd client && npm run preview",
     "prod": "npm run build:client && cd server && npm run prod"
   },
   "repository": {
