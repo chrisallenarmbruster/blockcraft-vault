@@ -14,8 +14,6 @@ const __dirname = dirname(__filename);
 
 dotenv.config({ path: join(__dirname, "../server/.env") });
 
-const blockcraftNodeUrl = process.env.VITE_BLOCKCRAFT_NODE_URL;
-
 export default defineConfig({
   plugins: [
     react(),
@@ -118,12 +116,6 @@ export default defineConfig({
         target: `http://localhost:${process.env.PORT}`,
         changeOrigin: true,
         secure: false,
-      },
-      "/external-api": {
-        target: "http://localhost:8100",
-        changeOrigin: true,
-        secure: false,
-        rewrite: (path) => path.replace(/^\/external-api/, ""),
       },
     },
   },

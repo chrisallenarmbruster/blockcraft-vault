@@ -3,22 +3,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { processCredentials } from "../store/cryptoMemStore";
 import { login, logout, register } from "../store/authSlice";
-import {
-  Form,
-  Button,
-  Container,
-  Row,
-  Col,
-  FloatingLabel,
-} from "react-bootstrap";
+import { Form, Button, Container, Row, Col } from "react-bootstrap";
 import { BsSafe } from "react-icons/bs";
 
 function Login() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
-  const [email, setEmail] = useState("chris@armbrustermail.com");
-  const [password, setPassword] = useState("1234");
-  const [confirmPassword, setConfirmPassword] = useState("1234");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [mode, setMode] = useState("login");
   const [isMobile, setIsMobile] = useState(
     window.innerWidth > 576 ? false : true
@@ -105,52 +98,43 @@ function Login() {
             >
               {mode === "login" ? "Login" : "Registration"}
             </h2>
-            <Form onSubmit={handleSubmit}>
-              <FloatingLabel
-                controlId="floatingEmail"
-                label="Email address"
-                className="mb-3"
-              >
+            <Form onSubmit={handleSubmit} className="px-2">
+              <Form.Group className="mb-3" controlId="email">
+                <Form.Label>Email address</Form.Label>
                 <Form.Control
                   type="email"
                   value={email}
-                  placeholder="Enter email"
+                  placeholder={mode === "login" ? 'try "demo@email.com"' : ""}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   tabIndex={1}
                 />
-              </FloatingLabel>
+              </Form.Group>
 
-              <FloatingLabel
-                controlId="floatingPassword"
-                label="Password"
-                className="mb-3"
-              >
+              <Form.Group className="mb-3" controlId="password">
+                <Form.Label>Password</Form.Label>
                 <Form.Control
                   type="password"
                   value={password}
-                  placeholder="Password"
+                  placeholder={mode === "login" ? 'try "demo"' : ""}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   tabIndex={2}
                 />
-              </FloatingLabel>
+              </Form.Group>
 
               {mode === "register" && (
-                <FloatingLabel
-                  controlId="floatingConfirmPassword"
-                  label="Confirm Password"
-                  className="mb-3"
-                >
+                <Form.Group className="mb-3" controlId="confirmPassword">
+                  <Form.Label>Confirm Password</Form.Label>
                   <Form.Control
                     type="password"
                     value={confirmPassword}
-                    placeholder="Confirm Password"
+                    placeholder=""
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                     tabIndex={3}
                   />
-                </FloatingLabel>
+                </Form.Group>
               )}
               <div className="d-flex justify-content-between w-100">
                 <Button

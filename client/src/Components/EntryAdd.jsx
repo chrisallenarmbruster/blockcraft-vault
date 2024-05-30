@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
@@ -44,8 +44,12 @@ function EntryAdd({ show, handleClose }) {
   const dispatch = useDispatch();
 
   const [selectedPrivateKey, setSelectedPrivateKey] = useState("");
+  const [selectedFromOption, setSelectedFromOption] = useState(null);
   const [selectedToOption, setSelectedToOption] = useState(null);
   const [toInputValue, setToInputValue] = useState("");
+  const [showResultModal, setShowResultModal] = useState(false);
+  const [resultModalHeader, setResultModalHeader] = useState("");
+  const [resultModalMessage, setResultModalMessage] = useState("");
 
   const addresses = useSelector(
     (state) => state.data.unencryptedData?.addresses || []
@@ -59,6 +63,7 @@ function EntryAdd({ show, handleClose }) {
       setSelectedPrivateKey("");
       reset();
       setSelectedToOption(null);
+      setSelectedFromOption(null);
     }
   }, [show, reset]);
 
@@ -75,18 +80,26 @@ function EntryAdd({ show, handleClose }) {
     clearErrors("from");
     try {
       await dispatch(addEntry(data)).unwrap();
-      console.log("Entry Simulated", data);
+      setResultModalHeader("Entry Succeeded!");
+      setResultModalMessage(
+        `<p>From: <br/>${data.from}</p><p>To:<br/> ${data.to}</p><p>Amount: ${data.amount}</p>`
+      );
+      setShowResultModal(true);
+      handleClose();
     } catch (error) {
+      setResultModalHeader("Entry Failed!");
       if (error instanceof Error) {
-        console.error("Failed to add entry", error.message);
+        setResultModalMessage(`<p>${error.message}</p>`);
+        setShowResultModal(true);
       } else {
-        console.error("An unknown error occurred while adding the entry");
+        setResultModalMessage(`<p>${error}</p>`);
+        setShowResultModal(true);
       }
     }
-    handleClose();
   };
 
   const handleFromSelectChange = (selectedFromOption) => {
+    setSelectedFromOption(selectedFromOption);
     setValue("from", selectedFromOption.value);
     clearErrors("from");
     const selectedKeypair = keypairs.find(
@@ -122,7 +135,7 @@ function EntryAdd({ show, handleClose }) {
     <>
       <Modal
         centered
-        show={show}
+        show={show && !showResultModal}
         onHide={handleClose}
         contentClassName="dark-modal"
       >
@@ -143,6 +156,7 @@ function EntryAdd({ show, handleClose }) {
                 }))}
                 isInvalid={!!errors.from}
                 onChange={handleFromSelectChange}
+                value={selectedFromOption}
                 styles={{
                   control: (provided) => ({
                     ...provided,
@@ -262,6 +276,34 @@ function EntryAdd({ show, handleClose }) {
           </Button>
         </Modal.Footer>
       </Modal>
+      {showResultModal && (
+        <Modal
+          show={showResultModal}
+          onHide={() => setShowResultModal(false)}
+          centered
+          contentClassName="dark-modal"
+        >
+          <Modal.Header>
+            <Modal.Title>{resultModalHeader}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body
+            dangerouslySetInnerHTML={{ __html: resultModalMessage }}
+            className={`text-break ${
+              resultModalHeader === "Entry Succeeded!" ? "" : "text-center my-3"
+            }`}
+          />
+          <Modal.Footer>
+            <Button
+              variant={
+                resultModalHeader === "Entry Succeeded!" ? "primary" : "danger"
+              }
+              onClick={() => setShowResultModal(false)}
+            >
+              OK
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      )}
     </>
   );
 }

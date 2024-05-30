@@ -90,7 +90,7 @@ function NavBar() {
               {isMobile ? (
                 <div className="d-flex flex-column align-items-center text-light">
                   <BsPiggyBank size={30} />
-                  <div className="fs-7 mt-1">{viewportHeight}</div>
+                  <div className="fs-7 mt-1">Assets</div>
                 </div>
               ) : (
                 "Assets"

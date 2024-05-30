@@ -44,7 +44,7 @@ export const addEntry = createAsyncThunk(
     try {
       const balance = await computeAccountBalance(from);
       if (balance < amount) {
-        return thunkAPI.rejectWithValue("Insufficient balance");
+        return thunkAPI.rejectWithValue("Insufficient Balance");
       }
 
       const unsignedEntry = {

@@ -59,12 +59,14 @@ Currently, two official plugins are available:
   "devDependencies": {
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
+    "@vite-pwa/assets-generator": "^0.2.4",
     "@vitejs/plugin-react": "^4.2.1",
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.34.1",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
-    "vite": "^5.2.0"
+    "vite": "^5.2.0",
+    "vite-plugin-pwa": "^0.20.0"
   }
 }
 
@@ -640,7 +642,7 @@ function Assets() {
                   <a
                     className="text-orange"
                     href={`${
-                      import.meta.env.VITE_BLOCKCRAFT_NODE_WEB_URL
+                      import.meta.env.VITE_BLOCKCRAFT_NODE_URL
                     }/entries?publicKey=${keypair.publicKey}`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -1769,7 +1771,7 @@ function NavBar() {
               {isMobile ? (
                 <div className="d-flex flex-column align-items-center text-light">
                   <BsPiggyBank size={30} />
-                  <div className="fs-7 mt-1">{viewportHeight}</div>
+                  <div className="fs-7 mt-1">Assets</div>
                 </div>
               ) : (
                 "Assets"
@@ -2658,16 +2660,98 @@ import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import fs from "fs";
 import { Buffer } from "buffer";
+import { VitePWA } from "vite-plugin-pwa";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 dotenv.config({ path: join(__dirname, "../server/.env") });
 
-const blockcraftNodeUrl = process.env.VITE_BLOCKCRAFT_NODE_URL;
-
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    VitePWA({
+      manifest: {
+        name: "Blockcraft Vault",
+        short_name: "B-Vault",
+        description: "Blockcraft Vault Digital Wallet",
+        theme_color: "#212529",
+        background_color: "#212529",
+        display: "standalone",
+        scope: "/",
+        start_url: "/",
+        icons: [
+          {
+            src: "/pwa-64x64.png",
+            sizes: "64x64",
+            type: "image/png",
+            purpose: "any maskable",
+          },
+          {
+            src: "/pwa-192x192.png",
+            sizes: "192x192",
+            type: "image/png",
+            purpose: "any maskable",
+          },
+          {
+            src: "/pwa-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "any maskable",
+          },
+          {
+            src: "/favicon-32x32.png",
+            sizes: "32x32",
+            type: "image/png",
+          },
+          {
+            src: "/favicon-16x16.png",
+            sizes: "16x16",
+            type: "image/png",
+          },
+          {
+            src: "/apple-touch-icon-180x180.png",
+            sizes: "180x180",
+            type: "image/png",
+          },
+          {
+            src: "/maskable-icon-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+          },
+          {
+            src: "/mstile-150x150.png",
+            sizes: "150x150",
+            type: "image/png",
+          },
+        ],
+      },
+      registerType: "autoUpdate",
+      workbox: {
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }) => url.origin === self.location.origin,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "static-resources",
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 30 * 24 * 60 * 60,
+              },
+            },
+          },
+        ],
+      },
+      iconPaths: {
+        favicon: "favicon.ico",
+        favicon32: "favicon-32x32.png",
+        favicon16: "favicon-16x16.png",
+        appleTouchIcon: "apple-touch-icon-180x180.png",
+        maskIcon: "maskable-icon-512x512.png",
+        msTileImage: "mstile-150x150.png",
+      },
+    }),
+  ],
   define: {
     "process.env": process.env,
     "process.browser": true,
@@ -2685,12 +2769,6 @@ export default defineConfig({
         target: `http://localhost:${process.env.PORT}`,
         changeOrigin: true,
         secure: false,
-      },
-      "/external-api": {
-        target: "http://localhost:8100",
-        changeOrigin: true,
-        secure: false,
-        rewrite: (path) => path.replace(/^\/external-api/, ""),
       },
     },
   },
@@ -2817,6 +2895,7 @@ processFiles();
     "test": "concurrently \"npm run test:client\" \"npm run test:server\"",
     "test:client": "cd client && npm run test",
     "test:server": "cd server && npm run test",
+    "preview": "npm run build:client && cd client && npm run preview",
     "prod": "npm run build:client && cd server && npm run prod"
   },
   "repository": {
@@ -3394,12 +3473,14 @@ Currently, two official plugins are available:
   "devDependencies": {
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
+    "@vite-pwa/assets-generator": "^0.2.4",
     "@vitejs/plugin-react": "^4.2.1",
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.34.1",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
-    "vite": "^5.2.0"
+    "vite": "^5.2.0",
+    "vite-plugin-pwa": "^0.20.0"
   }
 }
 
@@ -3975,7 +4056,7 @@ function Assets() {
                   <a
                     className="text-orange"
                     href={`${
-                      import.meta.env.VITE_BLOCKCRAFT_NODE_WEB_URL
+                      import.meta.env.VITE_BLOCKCRAFT_NODE_URL
                     }/entries?publicKey=${keypair.publicKey}`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -5104,7 +5185,7 @@ function NavBar() {
               {isMobile ? (
                 <div className="d-flex flex-column align-items-center text-light">
                   <BsPiggyBank size={30} />
-                  <div className="fs-7 mt-1">{viewportHeight}</div>
+                  <div className="fs-7 mt-1">Assets</div>
                 </div>
               ) : (
                 "Assets"
@@ -5993,16 +6074,98 @@ import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import fs from "fs";
 import { Buffer } from "buffer";
+import { VitePWA } from "vite-plugin-pwa";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 dotenv.config({ path: join(__dirname, "../server/.env") });
 
-const blockcraftNodeUrl = process.env.VITE_BLOCKCRAFT_NODE_URL;
-
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    VitePWA({
+      manifest: {
+        name: "Blockcraft Vault",
+        short_name: "B-Vault",
+        description: "Blockcraft Vault Digital Wallet",
+        theme_color: "#212529",
+        background_color: "#212529",
+        display: "standalone",
+        scope: "/",
+        start_url: "/",
+        icons: [
+          {
+            src: "/pwa-64x64.png",
+            sizes: "64x64",
+            type: "image/png",
+            purpose: "any maskable",
+          },
+          {
+            src: "/pwa-192x192.png",
+            sizes: "192x192",
+            type: "image/png",
+            purpose: "any maskable",
+          },
+          {
+            src: "/pwa-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "any maskable",
+          },
+          {
+            src: "/favicon-32x32.png",
+            sizes: "32x32",
+            type: "image/png",
+          },
+          {
+            src: "/favicon-16x16.png",
+            sizes: "16x16",
+            type: "image/png",
+          },
+          {
+            src: "/apple-touch-icon-180x180.png",
+            sizes: "180x180",
+            type: "image/png",
+          },
+          {
+            src: "/maskable-icon-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+          },
+          {
+            src: "/mstile-150x150.png",
+            sizes: "150x150",
+            type: "image/png",
+          },
+        ],
+      },
+      registerType: "autoUpdate",
+      workbox: {
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }) => url.origin === self.location.origin,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "static-resources",
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 30 * 24 * 60 * 60,
+              },
+            },
+          },
+        ],
+      },
+      iconPaths: {
+        favicon: "favicon.ico",
+        favicon32: "favicon-32x32.png",
+        favicon16: "favicon-16x16.png",
+        appleTouchIcon: "apple-touch-icon-180x180.png",
+        maskIcon: "maskable-icon-512x512.png",
+        msTileImage: "mstile-150x150.png",
+      },
+    }),
+  ],
   define: {
     "process.env": process.env,
     "process.browser": true,
@@ -6020,12 +6183,6 @@ export default defineConfig({
         target: `http://localhost:${process.env.PORT}`,
         changeOrigin: true,
         secure: false,
-      },
-      "/external-api": {
-        target: "http://localhost:8100",
-        changeOrigin: true,
-        secure: false,
-        rewrite: (path) => path.replace(/^\/external-api/, ""),
       },
     },
   },
@@ -6152,6 +6309,7 @@ processFiles();
     "test": "concurrently \"npm run test:client\" \"npm run test:server\"",
     "test:client": "cd client && npm run test",
     "test:server": "cd server && npm run test",
+    "preview": "npm run build:client && cd client && npm run preview",
     "prod": "npm run build:client && cd server && npm run prod"
   },
   "repository": {
