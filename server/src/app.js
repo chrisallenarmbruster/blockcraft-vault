@@ -8,6 +8,7 @@ import { dirname, join } from "path";
 import routes from "./routes/index.js";
 import "./routes/passportConfig.js";
 import cors from "cors";
+import volleyball from "volleyball";
 
 const app = express();
 
@@ -17,6 +18,7 @@ const sessionStore = new SequelizeStore({
 });
 
 app.use(cors());
+app.use(volleyball);
 app.use(
   session({
     secret: process.env.SESSION_SECRET,

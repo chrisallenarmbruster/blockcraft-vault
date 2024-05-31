@@ -1,0 +1,29 @@
+version: "3.3"
+
+services:
+  db:
+    image: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: blockcraft-vault
+
+  blockcraft-vault:
+    image: registry.rev4labs.com/blockcraft-vault:0.1.4
+    depends_on:
+      - db
+    restart: unless-stopped
+    ports:
+      - "51208:8000"
+    environment:
+      PORT: 8000
+      DATABASE_URL: postgres://postgres:postgres@db/blockcraft-vault
+      SESSION_SECRET: abacadabra
+      VITE_BLOCKCRAFT_NODE_URL: https://node1.blockcraft.rev4labs.com
+      VITE_DEMO_ACCOUNT_EMAIL: demo@email.com
+      VITE_DEMO_ACCOUNT_PASSWORD: demo
+volumes:
+  db_data:
