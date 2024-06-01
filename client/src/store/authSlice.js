@@ -8,39 +8,50 @@ import {
 import axios from "axios";
 import { fetchEntriesForAllKeys, resetEntries } from "./entriesSlice";
 
-export const login = createAsyncThunk("auth/login", async (_, { dispatch }) => {
-  const clientHashedUserId = getItem("clientHashedUserId");
-  const clientHashedPassword = getItem("clientHashedPassword");
+export const login = createAsyncThunk(
+  "auth/login",
+  async (_, { dispatch, rejectWithValue }) => {
+    try {
+      const clientHashedUserId = getItem("clientHashedUserId");
+      const clientHashedPassword = getItem("clientHashedPassword");
 
-  const response = await axios.post("/api/auth/login", {
-    clientHashedUserId,
-    clientHashedPassword,
-  });
+      const response = await axios.post("/api/auth/login", {
+        clientHashedUserId,
+        clientHashedPassword,
+      });
 
-  await dispatch(fetchEncryptedData());
-  dispatch(fetchEntriesForAllKeys());
+      await dispatch(fetchEncryptedData());
+      dispatch(fetchEntriesForAllKeys());
 
-  return response.data;
-});
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 
 export const register = createAsyncThunk(
   "auth/register",
-  async (_, { dispatch }) => {
-    const clientHashedUserId = getItem("clientHashedUserId");
-    const clientHashedPassword = getItem("clientHashedPassword");
+  async (_, { dispatch, rejectWithValue }) => {
+    try {
+      const clientHashedUserId = getItem("clientHashedUserId");
+      const clientHashedPassword = getItem("clientHashedPassword");
 
-    const response = await axios.post("/api/auth/register", {
-      clientHashedUserId,
-      clientHashedPassword,
-    });
+      const response = await axios.post("/api/auth/register", {
+        clientHashedUserId,
+        clientHashedPassword,
+      });
 
-    if (response.data.clientHashedUserId) {
-      await dispatch(login());
+      if (response.data.clientHashedUserId) {
+        await dispatch(login());
+      }
+
+      dispatch(updateEncryptedData({ keypairs: [], addresses: [] }));
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
     }
-
-    dispatch(updateEncryptedData({ keypairs: [], addresses: [] }));
-
-    return response.data;
   }
 );
 
@@ -62,18 +73,31 @@ export const logout = createAsyncThunk(
 
 const authSlice = createSlice({
   name: "auth",
-  initialState: { isAuthenticated: false },
+  initialState: { isAuthenticated: false, error: null },
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(login.fulfilled, (state) => {
         state.isAuthenticated = true;
+        state.error = null;
+      })
+      .addCase(login.rejected, (state, action) => {
+        console.log(action.payload);
+        state.isAuthenticated = false;
+        state.error = action.payload;
       })
       .addCase(register.fulfilled, (state) => {
         state.isAuthenticated = true;
+        state.error = null;
+      })
+      .addCase(register.rejected, (state, action) => {
+        console.log(action.payload);
+        state.isAuthenticated = false;
+        state.error = action.payload;
       })
       .addCase(logout.fulfilled, (state) => {
         state.isAuthenticated = false;
+        state.error = null;
       });
   },
 });

@@ -1,26 +1,40 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { processCredentials } from "../store/cryptoMemStore";
-import { login, logout, register } from "../store/authSlice";
+import { login, logout, register as registerThunk } from "../store/authSlice";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import { Form, Button, Container, Row, Col } from "react-bootstrap";
 import { BsSafe } from "react-icons/bs";
 
+const schema = yup.object({
+  email: yup.string().email().required(),
+  password: yup.string().required(),
+  confirmPassword: yup.string(),
+});
+
 function Login() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [mode, setMode] = useState("login");
   const [isMobile, setIsMobile] = useState(
     window.innerWidth > 576 ? false : true
   );
-
   const location = useLocation();
   const navigate = useNavigate();
-
   const dispatch = useDispatch();
+
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+    clearErrors,
+    reset,
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
 
   useEffect(() => {
     const handleResize = () => {
@@ -40,11 +54,14 @@ function Login() {
     }
   }, [location, navigate]);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const onSubmit = async (data) => {
+    const { email, password, confirmPassword } = data;
 
     if (mode === "register" && password !== confirmPassword) {
-      alert("Passwords do not match!");
+      setError("confirmPassword", {
+        type: "manual",
+        message: "Passwords do not match",
+      });
       return;
     }
 
@@ -53,7 +70,7 @@ function Login() {
     if (mode === "login") {
       dispatch(login());
     } else {
-      dispatch(register());
+      dispatch(registerThunk());
     }
   };
 
@@ -98,29 +115,36 @@ function Login() {
             >
               {mode === "login" ? "Login" : "Registration"}
             </h2>
-            <Form onSubmit={handleSubmit} className="px-2">
+
+            <Form onSubmit={handleSubmit(onSubmit)} className="px-2">
               <Form.Group className="mb-3" controlId="email">
                 <Form.Label>Email address</Form.Label>
                 <Form.Control
-                  type="email"
-                  value={email}
+                  type="text"
+                  name="email"
                   placeholder={mode === "login" ? 'try "demo@email.com"' : ""}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
+                  {...register("email")}
+                  isInvalid={!!errors.email}
                   tabIndex={1}
                 />
+                <Form.Control.Feedback type="invalid">
+                  {errors.email?.message}
+                </Form.Control.Feedback>
               </Form.Group>
 
               <Form.Group className="mb-3" controlId="password">
                 <Form.Label>Password</Form.Label>
                 <Form.Control
                   type="password"
-                  value={password}
+                  name="password"
                   placeholder={mode === "login" ? 'try "demo"' : ""}
-                  onChange={(e) => setPassword(e.target.value)}
+                  {...register("password")}
                   required
                   tabIndex={2}
                 />
+                <Form.Control.Feedback type="invalid">
+                  {errors.password?.message}
+                </Form.Control.Feedback>
               </Form.Group>
 
               {mode === "register" && (
@@ -128,12 +152,16 @@ function Login() {
                   <Form.Label>Confirm Password</Form.Label>
                   <Form.Control
                     type="password"
-                    value={confirmPassword}
+                    name="confirmPassword"
                     placeholder=""
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    {...register("confirmPassword")}
+                    isInvalid={!!errors.confirmPassword}
                     required
                     tabIndex={3}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.confirmPassword?.message}
+                  </Form.Control.Feedback>
                 </Form.Group>
               )}
               <div className="d-flex justify-content-between w-100">

@@ -10,21 +10,27 @@ router.post("/register", async (req, res, next) => {
     const { clientHashedUserId, clientHashedPassword } = req.body;
 
     if (!clientHashedPassword) {
-      return res.status(400).json({ message: "Password is required" });
+      const err = new Error("Password is required");
+      err.status = 400;
+      err.comment = "Password is required for registration.";
+      return next(err);
     }
 
     const existingUser = await User.findByPk(clientHashedUserId);
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      const err = new Error("User already exists");
+      err.status = 400;
+      err.comment = "The provided user ID is already registered.";
+      return next(err);
     }
 
     const reHashedPassword = await bcrypt.hash(clientHashedPassword, 10);
     const newUser = await User.create({ clientHashedUserId, reHashedPassword });
     res.status(201).json(newUser);
-  } catch (error) {
-    error.status = 500;
-    error.comment = "Error processing POST /api/auth/register route";
-    next(error);
+  } catch (err) {
+    err.status = 500;
+    err.comment = "Server issue processing registration. Please try again.";
+    next(err);
   }
 });
 
@@ -32,19 +38,19 @@ router.post("/login", (req, res, next) => {
   passport.authenticate("local", (error, user, info) => {
     if (error) {
       error.status = 400;
-      error.comment = "Error processing POST /api/auth/login route";
+      error.comment = "Server issue processing login. Please try again.";
       return next(error);
     }
     if (!user) {
       const err = new Error(info.message);
       err.status = 404;
-      err.comment = "Authentication failed in POST /api/auth/login route";
+      err.comment = "Provided credentials do not match any registered user";
       return next(err);
     }
     req.logIn(user, (error) => {
       if (error) {
         error.status = 400;
-        error.comment = "Bad request in POST /api/auth/login route";
+        error.comment = "Server issue processing login. Please try again.";
         return next(error);
       }
       return res.status(200).json(user);
