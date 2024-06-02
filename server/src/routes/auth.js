@@ -12,7 +12,7 @@ router.post("/register", async (req, res, next) => {
     if (!clientHashedPassword) {
       const err = new Error("Password is required");
       err.status = 400;
-      err.comment = "Password is required for registration.";
+      err.comment = "Password is required.";
       return next(err);
     }
 
@@ -20,7 +20,7 @@ router.post("/register", async (req, res, next) => {
     if (existingUser) {
       const err = new Error("User already exists");
       err.status = 400;
-      err.comment = "The provided user ID is already registered.";
+      err.comment = "Provided email ID already in use.";
       return next(err);
     }
 
@@ -44,7 +44,7 @@ router.post("/login", (req, res, next) => {
     if (!user) {
       const err = new Error(info.message);
       err.status = 404;
-      err.comment = "Provided credentials do not match any registered user";
+      err.comment = "No match for provided credentials.";
       return next(err);
     }
     req.logIn(user, (error) => {

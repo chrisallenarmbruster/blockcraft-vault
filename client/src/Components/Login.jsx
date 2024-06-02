@@ -2,11 +2,15 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { processCredentials } from "../store/cryptoMemStore";
-import { login, logout, register as registerThunk } from "../store/authSlice";
+import {
+  login,
+  register as registerThunk,
+  resetError,
+} from "../store/authSlice";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { Form, Button, Container, Row, Col } from "react-bootstrap";
+import { Form, Button, Container, Row, Col, Modal } from "react-bootstrap";
 import { BsSafe } from "react-icons/bs";
 
 const schema = yup.object({
@@ -16,7 +20,8 @@ const schema = yup.object({
 });
 
 function Login() {
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const isError = useSelector((state) => state.auth.error);
+
   const [mode, setMode] = useState("login");
   const [isMobile, setIsMobile] = useState(
     window.innerWidth > 576 ? false : true
@@ -30,8 +35,6 @@ function Login() {
     handleSubmit,
     setError,
     formState: { errors },
-    clearErrors,
-    reset,
   } = useForm({
     resolver: yupResolver(schema),
   });
@@ -65,32 +68,20 @@ function Login() {
       return;
     }
 
-    await processCredentials(email, password);
+    try {
+      await processCredentials(email, password);
 
-    if (mode === "login") {
-      dispatch(login());
-    } else {
-      dispatch(registerThunk());
+      if (mode === "login") {
+        dispatch(login());
+      } else {
+        dispatch(registerThunk());
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
-  if (isAuthenticated) {
-    return (
-      <div>
-        <p>Logged in</p>
-        <button
-          onClick={() => {
-            setMode("login");
-            dispatch(logout());
-          }}
-        >
-          Logout
-        </button>
-      </div>
-    );
-  }
-
-  return (
+  return !isError ? (
     <Container className="d-flex flex-column justify-content-center vh-100 mw-375">
       <Row className="justify-content-md-center">
         <Col xs md="6" lg="5" xl="4">
@@ -185,6 +176,31 @@ function Login() {
         </Col>
       </Row>
     </Container>
+  ) : (
+    <Modal
+      show={isError}
+      onHide={() => dispatch(resetError())}
+      centered
+      contentClassName="dark-modal"
+    >
+      <Modal.Header>
+        <Modal.Title>
+          {mode === "login" ? "Login" : "Registration"} Error
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <p className="my-3 text-center">{isError.comment}</p>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button
+          variant="danger"
+          onClick={() => dispatch(resetError())}
+          tabIndex={1}
+        >
+          OK
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 }
 
