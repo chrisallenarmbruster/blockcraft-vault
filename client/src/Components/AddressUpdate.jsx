@@ -115,7 +115,10 @@ function AddressUpdate({ address }) {
                   {...register("publicKey")}
                   isInvalid={!!errors.publicKey}
                 />
-                <Button variant="outline-secondary rounded-right">
+                <Button
+                  variant="outline-secondary rounded-right"
+                  title="Click to scan a different QR code."
+                >
                   <QRCodeScanner onScanSuccess={handleScanSuccess} />
                 </Button>
                 <Form.Control.Feedback type="invalid">

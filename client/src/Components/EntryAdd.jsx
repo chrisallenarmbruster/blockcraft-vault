@@ -157,6 +157,8 @@ function EntryAdd({ show, handleClose }) {
                 isInvalid={!!errors.from}
                 onChange={handleFromSelectChange}
                 value={selectedFromOption}
+                placeholder="Select keypair to send from"
+                title="Select keypair to send from."
                 styles={{
                   control: (provided) => ({
                     ...provided,
@@ -207,6 +209,7 @@ function EntryAdd({ show, handleClose }) {
                   inputValue={toInputValue}
                   value={selectedToOption}
                   placeholder="Select contact, type key or scan"
+                  title="Select contact, type key or scan QR code to send to."
                   styles={{
                     control: (provided) => ({
                       ...provided,
@@ -235,6 +238,7 @@ function EntryAdd({ show, handleClose }) {
                 <Button
                   variant="outline-secondary"
                   className="flex-grow-0 rounded-right"
+                  title="Click to scan a QR code."
                 >
                   <QRCodeScanner onScanSuccess={handleScanSuccess} />
                 </Button>
@@ -256,6 +260,8 @@ function EntryAdd({ show, handleClose }) {
                 {...register("amount")}
                 isInvalid={!!errors.amount}
                 className="text-end"
+                placeholder="Enter numeric amount to send"
+                title="Enter numeric amount to send.      "
               />
               <Form.Control.Feedback type="invalid">
                 {errors.amount?.message}

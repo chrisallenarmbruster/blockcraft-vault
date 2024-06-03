@@ -113,10 +113,18 @@ function Login() {
                 <Form.Control
                   type="text"
                   name="email"
-                  placeholder={mode === "login" ? 'try "demo@email.com"' : ""}
+                  placeholder={
+                    mode === "login" ? 'try "demo@email.com"' : "Enter email ID"
+                  }
                   {...register("email")}
                   isInvalid={!!errors.email}
                   tabIndex={1}
+                  title={
+                    mode === "login"
+                      ? "Enter your email ID to login or use 'demo@email.com' to test drive the app."
+                      : "Enter a valid email address to use as your login id.  This will be hashed before being sent to the server and stored." +
+                        " The server will never have access to your email address."
+                  }
                 />
                 <Form.Control.Feedback type="invalid">
                   {errors.email?.message}
@@ -128,10 +136,22 @@ function Login() {
                 <Form.Control
                   type="password"
                   name="password"
-                  placeholder={mode === "login" ? 'try "demo"' : ""}
+                  title={
+                    mode === "login"
+                      ? "Enter password.  If test driving the app with 'demo@email.com' use 'demo' as the password."
+                      : "Enter a password to use for login. This will be hashed before being sent to the server " +
+                        "and then hashed again by the server and stored. The server will never have access to to your password. " +
+                        "This password will be used to log you in and encrypt/decrpyt your data before sending it to " +
+                        "and after receiving it from the server. It is important to remember this password! " +
+                        "This is a zero-knowledge encryption app that prioritizes privacy, anonymity and security over convenience. " +
+                        "Your password cannot be recovered if lost. If you forget your password, you will need to register again and lose your data."
+                  }
+                  placeholder={
+                    mode === "login" ? 'try "demo"' : "Enter password"
+                  }
                   {...register("password")}
-                  required
                   tabIndex={2}
+                  isInvalid={!!errors.password}
                 />
                 <Form.Control.Feedback type="invalid">
                   {errors.password?.message}
@@ -144,10 +164,10 @@ function Login() {
                   <Form.Control
                     type="password"
                     name="confirmPassword"
-                    placeholder=""
+                    title="Re-enter the password you entered above to confirm it."
+                    placeholder="Confirm password"
                     {...register("confirmPassword")}
                     isInvalid={!!errors.confirmPassword}
-                    required
                     tabIndex={3}
                   />
                   <Form.Control.Feedback type="invalid">

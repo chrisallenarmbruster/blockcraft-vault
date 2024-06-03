@@ -97,6 +97,8 @@ function AddressAdd() {
                 type="text"
                 {...register("label")}
                 isInvalid={!!errors.label}
+                title="Type a friendly name for this contact."
+                placeholder="Type a friendly name for this contact"
               />
               <Form.Control.Feedback type="invalid">
                 {errors.label?.message}
@@ -109,8 +111,14 @@ function AddressAdd() {
                   type="text"
                   {...register("publicKey")}
                   isInvalid={!!errors.publicKey}
+                  placeholder="Type, paste or scan"
+                  title="Type or paste a public key, or scan a QR code."
                 />
-                <Button variant="outline-secondary" className="rounded-right">
+                <Button
+                  variant="outline-secondary"
+                  className="rounded-right"
+                  title="Click to scan QR code."
+                >
                   <QRCodeScanner onScanSuccess={handleScanSuccess} />
                 </Button>
                 <Form.Control.Feedback type="invalid">

@@ -143,7 +143,10 @@ function KeypairUpdate({ keypair }) {
                   {...register("publicKey")}
                   isInvalid={!!errors.publicKey}
                 />
-                <Button variant="outline-secondary rounded-right">
+                <Button
+                  variant="outline-secondary rounded-right"
+                  title="Click to scan a different QR code."
+                >
                   <QRCodeScanner onScanSuccess={handleScanSuccess} />
                 </Button>
                 <Form.Control.Feedback type="invalid">
@@ -163,6 +166,7 @@ function KeypairUpdate({ keypair }) {
                 <Button
                   variant="outline-secondary rounded-right"
                   onClick={() => setShowPassword(!showPassword)}
+                  title="Click to toggle private key visibility."
                 >
                   {showPassword ? (
                     <BsEyeSlash className="text-light" />

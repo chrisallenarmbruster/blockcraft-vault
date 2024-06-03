@@ -19,6 +19,13 @@ const selectKeypairs = createSelector(
   (unencryptedData) => unencryptedData?.keypairs || []
 );
 
+function generateKeyPair() {
+  const keyPair = ec.genKeyPair();
+  const privateKey = keyPair.getPrivate("hex");
+  const publicKeyCompressed = keyPair.getPublic().encode("hex", true);
+  return { privateKey, publicKeyCompressed };
+}
+
 function KeypairAdd() {
   const keypairs = useSelector(selectKeypairs);
   const [showPassword, setShowPassword] = useState(false);
@@ -128,6 +135,8 @@ function KeypairAdd() {
                 type="text"
                 {...register("label")}
                 isInvalid={!!errors.label}
+                title="Type a friendly name for this keypair."
+                placeholder="Type a friendly name for this keypair"
               />
               <Form.Control.Feedback type="invalid">
                 {errors.label?.message}
@@ -135,14 +144,34 @@ function KeypairAdd() {
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formPublicKey">
-              <Form.Label>Public Key</Form.Label>
+              <Form.Label className="d-flex justify-content-between">
+                <div className="py-0">Public Key</div>
+                <Button
+                  title="If you don't have a keypair, you can generate one by clicking here."
+                  variant="link"
+                  className="py-0 text-orange"
+                  onClick={() => {
+                    const { privateKey, publicKeyCompressed } =
+                      generateKeyPair();
+                    setValue("publicKey", publicKeyCompressed);
+                    setValue("privateKey", privateKey);
+                  }}
+                >
+                  Generate New Keypair
+                </Button>
+              </Form.Label>
               <InputGroup>
                 <Form.Control
                   type="text"
                   {...register("publicKey")}
                   isInvalid={!!errors.publicKey}
+                  placeholder="Type, paste, scan or generate"
+                  title="Type a public key, scan a QR code or generate a new keypair."
                 />
-                <Button variant="outline-secondary rounded-right">
+                <Button
+                  variant="outline-secondary rounded-right"
+                  title="Click to scan QR code."
+                >
                   <QRCodeScanner onScanSuccess={handleScanSuccess} />
                 </Button>
                 <Form.Control.Feedback type="invalid">
@@ -158,10 +187,13 @@ function KeypairAdd() {
                   type={showPassword ? "text" : "password"}
                   {...register("privateKey")}
                   isInvalid={!!errors.privateKey}
+                  placeholder="Type, paste or generate"
+                  title="Type or paste private key here.."
                 />
                 <Button
                   variant="outline-secondary rounded-right"
                   onClick={() => setShowPassword(!showPassword)}
+                  title="Click to toggle private key visibility."
                 >
                   {showPassword ? (
                     <BsEyeSlash className="text-light" />
