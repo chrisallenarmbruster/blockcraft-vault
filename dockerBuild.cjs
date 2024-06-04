@@ -6,7 +6,7 @@
 // 'docker buildx create --name mybuilder --driver docker-container --bootstrap' and then
 // 'docker buildx use mybuilder'
 
-const defaultVersion = "0.1.1"; // Set default version here
+const defaultVersion = "0.1.8"; // Set default version here
 
 const dockerfilePath = "./Dockerfile";
 

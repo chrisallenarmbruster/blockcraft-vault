@@ -58,7 +58,9 @@ function Login() {
   }, [location, navigate]);
 
   const onSubmit = async (data) => {
-    const { email, password, confirmPassword } = data;
+    let { email, password, confirmPassword } = data;
+
+    email = email.toLowerCase();
 
     if (mode === "register" && password !== confirmPassword) {
       setError("confirmPassword", {
@@ -104,7 +106,7 @@ function Login() {
             <Form.Group className="mb-3" controlId="email">
               <Form.Label>Email address</Form.Label>
               <Form.Control
-                type="text"
+                type="email"
                 name="email"
                 placeholder={
                   mode === "login" ? 'try "demo@email.com"' : "Enter email ID"

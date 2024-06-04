@@ -174,6 +174,8 @@ function AddressAdd() {
                 type="text"
                 {...register("label")}
                 isInvalid={!!errors.label}
+                title="Type a friendly name for this contact."
+                placeholder="Type a friendly name for this contact"
               />
               <Form.Control.Feedback type="invalid">
                 {errors.label?.message}
@@ -186,8 +188,14 @@ function AddressAdd() {
                   type="text"
                   {...register("publicKey")}
                   isInvalid={!!errors.publicKey}
+                  placeholder="Type, paste or scan"
+                  title="Type or paste a public key, or scan a QR code."
                 />
-                <Button variant="outline-secondary" className="rounded-right">
+                <Button
+                  variant="outline-secondary"
+                  className="rounded-right"
+                  title="Click to scan QR code."
+                >
                   <QRCodeScanner onScanSuccess={handleScanSuccess} />
                 </Button>
                 <Form.Control.Feedback type="invalid">
@@ -400,7 +408,10 @@ function AddressUpdate({ address }) {
                   {...register("publicKey")}
                   isInvalid={!!errors.publicKey}
                 />
-                <Button variant="outline-secondary rounded-right">
+                <Button
+                  variant="outline-secondary rounded-right"
+                  title="Click to scan a different QR code."
+                >
                   <QRCodeScanner onScanSuccess={handleScanSuccess} />
                 </Button>
                 <Form.Control.Feedback type="invalid">
@@ -459,8 +470,10 @@ function Addresses() {
   return (
     <Container>
       <div className="d-flex align-items-center mb-3 h2">
-        <span className="me-3">Contacts</span>
-        <AddressAdd />
+        <div className="me-3">Contacts</div>
+        <div title="Add New Contact">
+          <AddressAdd />
+        </div>
       </div>
       <Container>
         <Row className="mt-3 mb-3 border-bottom fw-bold">
@@ -471,12 +484,14 @@ function Addresses() {
         {addresses.map((address) => (
           <Row key={address.nanoId} className="pb-3 mb-3 border-bottom">
             <Col xs={5}>{address.label}</Col>
-            <Col xs={4}>{formatKey(address.publicKey)}</Col>
+            <Col xs={4} title={address.publicKey}>
+              {formatKey(address.publicKey)}
+            </Col>
             <Col xs={3} className="text-center d-flex ">
-              <div className="me-2">
+              <div className="me-2" title="Edit Contact">
                 <AddressUpdate address={address} />
               </div>
-              <div>
+              <div title="Delete Contact">
                 <AddressDelete address={address} />
               </div>
             </Col>
@@ -712,8 +727,12 @@ function EntryAdd({ show, handleClose }) {
   const dispatch = useDispatch();
 
   const [selectedPrivateKey, setSelectedPrivateKey] = useState("");
+  const [selectedFromOption, setSelectedFromOption] = useState(null);
   const [selectedToOption, setSelectedToOption] = useState(null);
   const [toInputValue, setToInputValue] = useState("");
+  const [showResultModal, setShowResultModal] = useState(false);
+  const [resultModalHeader, setResultModalHeader] = useState("");
+  const [resultModalMessage, setResultModalMessage] = useState("");
 
   const addresses = useSelector(
     (state) => state.data.unencryptedData?.addresses || []
@@ -727,6 +746,7 @@ function EntryAdd({ show, handleClose }) {
       setSelectedPrivateKey("");
       reset();
       setSelectedToOption(null);
+      setSelectedFromOption(null);
     }
   }, [show, reset]);
 
@@ -743,18 +763,26 @@ function EntryAdd({ show, handleClose }) {
     clearErrors("from");
     try {
       await dispatch(addEntry(data)).unwrap();
-      console.log("Entry Simulated", data);
+      setResultModalHeader("Entry Succeeded!");
+      setResultModalMessage(
+        `<p>From: <br/>${data.from}</p><p>To:<br/> ${data.to}</p><p>Amount: ${data.amount}</p>`
+      );
+      setShowResultModal(true);
+      handleClose();
     } catch (error) {
+      setResultModalHeader("Entry Failed!");
       if (error instanceof Error) {
-        console.error("Failed to add entry", error.message);
+        setResultModalMessage(`<p>${error.message}</p>`);
+        setShowResultModal(true);
       } else {
-        console.error("An unknown error occurred while adding the entry");
+        setResultModalMessage(`<p>${error}</p>`);
+        setShowResultModal(true);
       }
     }
-    handleClose();
   };
 
   const handleFromSelectChange = (selectedFromOption) => {
+    setSelectedFromOption(selectedFromOption);
     setValue("from", selectedFromOption.value);
     clearErrors("from");
     const selectedKeypair = keypairs.find(
@@ -790,7 +818,7 @@ function EntryAdd({ show, handleClose }) {
     <>
       <Modal
         centered
-        show={show}
+        show={show && !showResultModal}
         onHide={handleClose}
         contentClassName="dark-modal"
       >
@@ -811,6 +839,9 @@ function EntryAdd({ show, handleClose }) {
                 }))}
                 isInvalid={!!errors.from}
                 onChange={handleFromSelectChange}
+                value={selectedFromOption}
+                placeholder="Select keypair to send from"
+                title="Select keypair to send from."
                 styles={{
                   control: (provided) => ({
                     ...provided,
@@ -861,6 +892,7 @@ function EntryAdd({ show, handleClose }) {
                   inputValue={toInputValue}
                   value={selectedToOption}
                   placeholder="Select contact, type key or scan"
+                  title="Select contact, type key or scan QR code to send to."
                   styles={{
                     control: (provided) => ({
                       ...provided,
@@ -889,6 +921,7 @@ function EntryAdd({ show, handleClose }) {
                 <Button
                   variant="outline-secondary"
                   className="flex-grow-0 rounded-right"
+                  title="Click to scan a QR code."
                 >
                   <QRCodeScanner onScanSuccess={handleScanSuccess} />
                 </Button>
@@ -910,6 +943,8 @@ function EntryAdd({ show, handleClose }) {
                 {...register("amount")}
                 isInvalid={!!errors.amount}
                 className="text-end"
+                placeholder="Enter numeric amount to send"
+                title="Enter numeric amount to send.      "
               />
               <Form.Control.Feedback type="invalid">
                 {errors.amount?.message}
@@ -930,6 +965,34 @@ function EntryAdd({ show, handleClose }) {
           </Button>
         </Modal.Footer>
       </Modal>
+      {showResultModal && (
+        <Modal
+          show={showResultModal}
+          onHide={() => setShowResultModal(false)}
+          centered
+          contentClassName="dark-modal"
+        >
+          <Modal.Header>
+            <Modal.Title>{resultModalHeader}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body
+            dangerouslySetInnerHTML={{ __html: resultModalMessage }}
+            className={`text-break ${
+              resultModalHeader === "Entry Succeeded!" ? "" : "text-center my-3"
+            }`}
+          />
+          <Modal.Footer>
+            <Button
+              variant={
+                resultModalHeader === "Entry Succeeded!" ? "primary" : "danger"
+              }
+              onClick={() => setShowResultModal(false)}
+            >
+              OK
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      )}
     </>
   );
 }
@@ -987,6 +1050,13 @@ const selectKeypairs = createSelector(
   (state) => state.data.unencryptedData,
   (unencryptedData) => unencryptedData?.keypairs || []
 );
+
+function generateKeyPair() {
+  const keyPair = ec.genKeyPair();
+  const privateKey = keyPair.getPrivate("hex");
+  const publicKeyCompressed = keyPair.getPublic().encode("hex", true);
+  return { privateKey, publicKeyCompressed };
+}
 
 function KeypairAdd() {
   const keypairs = useSelector(selectKeypairs);
@@ -1097,6 +1167,8 @@ function KeypairAdd() {
                 type="text"
                 {...register("label")}
                 isInvalid={!!errors.label}
+                title="Type a friendly name for this keypair."
+                placeholder="Type a friendly name for this keypair"
               />
               <Form.Control.Feedback type="invalid">
                 {errors.label?.message}
@@ -1104,14 +1176,34 @@ function KeypairAdd() {
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formPublicKey">
-              <Form.Label>Public Key</Form.Label>
+              <Form.Label className="d-flex justify-content-between">
+                <div className="py-0">Public Key</div>
+                <Button
+                  title="If you don't have a keypair, you can generate one by clicking here."
+                  variant="link"
+                  className="py-0 text-orange"
+                  onClick={() => {
+                    const { privateKey, publicKeyCompressed } =
+                      generateKeyPair();
+                    setValue("publicKey", publicKeyCompressed);
+                    setValue("privateKey", privateKey);
+                  }}
+                >
+                  Generate New Keypair
+                </Button>
+              </Form.Label>
               <InputGroup>
                 <Form.Control
                   type="text"
                   {...register("publicKey")}
                   isInvalid={!!errors.publicKey}
+                  placeholder="Type, paste, scan or generate"
+                  title="Type a public key, scan a QR code or generate a new keypair."
                 />
-                <Button variant="outline-secondary rounded-right">
+                <Button
+                  variant="outline-secondary rounded-right"
+                  title="Click to scan QR code."
+                >
                   <QRCodeScanner onScanSuccess={handleScanSuccess} />
                 </Button>
                 <Form.Control.Feedback type="invalid">
@@ -1127,10 +1219,13 @@ function KeypairAdd() {
                   type={showPassword ? "text" : "password"}
                   {...register("privateKey")}
                   isInvalid={!!errors.privateKey}
+                  placeholder="Type, paste or generate"
+                  title="Type or paste private key here.."
                 />
                 <Button
                   variant="outline-secondary rounded-right"
                   onClick={() => setShowPassword(!showPassword)}
+                  title="Click to toggle private key visibility."
                 >
                   {showPassword ? (
                     <BsEyeSlash className="text-light" />
@@ -1377,7 +1472,10 @@ function KeypairUpdate({ keypair }) {
                   {...register("publicKey")}
                   isInvalid={!!errors.publicKey}
                 />
-                <Button variant="outline-secondary rounded-right">
+                <Button
+                  variant="outline-secondary rounded-right"
+                  title="Click to scan a different QR code."
+                >
                   <QRCodeScanner onScanSuccess={handleScanSuccess} />
                 </Button>
                 <Form.Control.Feedback type="invalid">
@@ -1397,6 +1495,7 @@ function KeypairUpdate({ keypair }) {
                 <Button
                   variant="outline-secondary rounded-right"
                   onClick={() => setShowPassword(!showPassword)}
+                  title="Click to toggle private key visibility."
                 >
                   {showPassword ? (
                     <BsEyeSlash className="text-light" />
@@ -1459,8 +1558,10 @@ function Keypairs() {
   return (
     <Container>
       <div className="d-flex align-items-center mb-3 h2">
-        <span className="me-3">Keychain</span>
-        <KeypairAdd />
+        <div className="me-3">Keychain</div>
+        <div title="Add New Keypair">
+          <KeypairAdd />
+        </div>
       </div>
       <Container>
         <Row className="mt-3 mb-3 border-bottom fw-bold">
@@ -1471,12 +1572,14 @@ function Keypairs() {
         {keypairs.map((keypair) => (
           <Row key={keypair.nanoId} className="pb-3 mb-3 border-bottom">
             <Col xs={5}>{keypair.label}</Col>
-            <Col xs={4}>{formatKey(keypair.publicKey)}</Col>
+            <Col xs={4} title={keypair.publicKey}>
+              {formatKey(keypair.publicKey)}
+            </Col>
             <Col xs={3} className="text-center d-flex ">
-              <div className="me-2">
+              <div className="me-2" title="Edit Keypair">
                 <KeypairUpdate keypair={keypair} />
               </div>
-              <div>
+              <div title="Delete Keypair">
                 <KeypairDelete keypair={keypair} />
               </div>
             </Col>
@@ -1494,36 +1597,46 @@ export default Keypairs;
 # client/src/Components/Login.jsx
 
 ```javascript
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { processCredentials } from "../store/cryptoMemStore";
-import { login, logout, register } from "../store/authSlice";
 import {
-  Form,
-  Button,
-  Container,
-  Row,
-  Col,
-  FloatingLabel,
-} from "react-bootstrap";
+  login,
+  register as registerThunk,
+  resetError,
+} from "../store/authSlice";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { Form, Button, Container, Row, Col, Modal } from "react-bootstrap";
 import { BsSafe } from "react-icons/bs";
 
-function Login() {
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+const schema = yup.object({
+  email: yup.string().email().required(),
+  password: yup.string().required(),
+  confirmPassword: yup.string(),
+});
 
-  const [email, setEmail] = useState("chris@armbrustermail.com");
-  const [password, setPassword] = useState("1234");
-  const [confirmPassword, setConfirmPassword] = useState("1234");
+function Login() {
+  const isError = useSelector((state) => state.auth.error);
+
   const [mode, setMode] = useState("login");
   const [isMobile, setIsMobile] = useState(
     window.innerWidth > 576 ? false : true
   );
-
   const location = useLocation();
   const navigate = useNavigate();
-
   const dispatch = useDispatch();
+
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
 
   useEffect(() => {
     const handleResize = () => {
@@ -1543,50 +1656,38 @@ function Login() {
     }
   }, [location, navigate]);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const onSubmit = async (data) => {
+    let { email, password, confirmPassword } = data;
+
+    email = email.toLowerCase();
 
     if (mode === "register" && password !== confirmPassword) {
-      alert("Passwords do not match!");
+      setError("confirmPassword", {
+        type: "manual",
+        message: "Passwords do not match",
+      });
       return;
     }
 
-    await processCredentials(email, password);
+    try {
+      await processCredentials(email, password);
 
-    if (mode === "login") {
-      dispatch(login());
-    } else {
-      dispatch(register());
+      if (mode === "login") {
+        dispatch(login());
+      } else {
+        dispatch(registerThunk());
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
-  if (isAuthenticated) {
-    return (
-      <div>
-        <p>Logged in</p>
-        <button
-          onClick={() => {
-            setMode("login");
-            dispatch(logout());
-          }}
-        >
-          Logout
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <Container className="d-flex flex-column justify-content-center vh-100 mw-375">
-      <Row className="justify-content-md-center">
-        <Col xs md="6" lg="5" xl="4">
-          <Container
-            className={
-              isMobile
-                ? "justify-content-center"
-                : "border border-2 px-2 rounded pb-3 my-3"
-            }
-          >
+    <>
+      <Modal show={!isError} centered contentClassName="dark-modal">
+        <Form onSubmit={handleSubmit(onSubmit)} className="px-2">
+          <Modal.Body>
+            {" "}
             <h1
               className={`${
                 isMobile ? "display-4" : "h2"
@@ -1601,74 +1702,112 @@ function Login() {
             >
               {mode === "login" ? "Login" : "Registration"}
             </h2>
-            <Form onSubmit={handleSubmit}>
-              <FloatingLabel
-                controlId="floatingEmail"
-                label="Email address"
-                className="mb-3"
-              >
-                <Form.Control
-                  type="email"
-                  value={email}
-                  placeholder="Enter email"
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  tabIndex={1}
-                />
-              </FloatingLabel>
-
-              <FloatingLabel
-                controlId="floatingPassword"
-                label="Password"
-                className="mb-3"
-              >
+            <Form.Group className="mb-3" controlId="email">
+              <Form.Label>Email address</Form.Label>
+              <Form.Control
+                type="email"
+                name="email"
+                placeholder={
+                  mode === "login" ? 'try "demo@email.com"' : "Enter email ID"
+                }
+                {...register("email")}
+                isInvalid={!!errors.email}
+                tabIndex={1}
+                title={
+                  mode === "login"
+                    ? "Enter your email ID to login or use 'demo@email.com' to test drive the app."
+                    : "Enter a valid email address to use as your login id.  This will be hashed before being sent to the server and stored." +
+                      " The server will never have access to your email address."
+                }
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.email?.message}
+              </Form.Control.Feedback>
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="password">
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type="password"
+                name="password"
+                title={
+                  mode === "login"
+                    ? "Enter password.  If test driving the app with 'demo@email.com' use 'demo' as the password."
+                    : "Enter a password to use for login. This will be hashed before being sent to the server " +
+                      "and then hashed again by the server and stored. The server will never have access to to your password. " +
+                      "This password will be used to log you in and encrypt/decrpyt your data before sending it to " +
+                      "and after receiving it from the server. It is important to remember this password! " +
+                      "This is a zero-knowledge encryption app that prioritizes privacy, anonymity and security over convenience. " +
+                      "Your password cannot be recovered if lost. If you forget your password, you will need to register again and lose your data."
+                }
+                placeholder={mode === "login" ? 'try "demo"' : "Enter password"}
+                {...register("password")}
+                tabIndex={2}
+                isInvalid={!!errors.password}
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.password?.message}
+              </Form.Control.Feedback>
+            </Form.Group>
+            {mode === "register" && (
+              <Form.Group className="mb-3" controlId="confirmPassword">
+                <Form.Label>Confirm Password</Form.Label>
                 <Form.Control
                   type="password"
-                  value={password}
-                  placeholder="Password"
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  tabIndex={2}
+                  name="confirmPassword"
+                  title="Re-enter the password you entered above to confirm it."
+                  placeholder="Confirm password"
+                  {...register("confirmPassword")}
+                  isInvalid={!!errors.confirmPassword}
+                  tabIndex={3}
                 />
-              </FloatingLabel>
+                <Form.Control.Feedback type="invalid">
+                  {errors.confirmPassword?.message}
+                </Form.Control.Feedback>
+              </Form.Group>
+            )}{" "}
+            <div className="d-flex justify-content-between w-100">
+              <Button
+                variant="link"
+                type="button"
+                onClick={() => setMode(mode === "login" ? "register" : "login")}
+                className="text-decoration-none"
+                tabIndex={5}
+              >
+                {mode === "login" ? "Register Instead" : "Login Instead"}
+              </Button>
+              <Button variant="primary" type="submit" tabIndex={4}>
+                {mode === "login" ? "Login" : "Register"}
+              </Button>
+            </div>
+          </Modal.Body>
+        </Form>
+      </Modal>
 
-              {mode === "register" && (
-                <FloatingLabel
-                  controlId="floatingConfirmPassword"
-                  label="Confirm Password"
-                  className="mb-3"
-                >
-                  <Form.Control
-                    type="password"
-                    value={confirmPassword}
-                    placeholder="Confirm Password"
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                    tabIndex={3}
-                  />
-                </FloatingLabel>
-              )}
-              <div className="d-flex justify-content-between w-100">
-                <Button
-                  variant="link"
-                  type="button"
-                  onClick={() =>
-                    setMode(mode === "login" ? "register" : "login")
-                  }
-                  className="text-decoration-none"
-                  tabIndex={5}
-                >
-                  {mode === "login" ? "Register Instead" : "Login Instead"}
-                </Button>
-                <Button variant="primary" type="submit" tabIndex={4}>
-                  {mode === "login" ? "Login" : "Register"}
-                </Button>
-              </div>
-            </Form>
-          </Container>
-        </Col>
-      </Row>
-    </Container>
+      <Modal
+        show={isError}
+        onHide={() => dispatch(resetError())}
+        centered
+        contentClassName="dark-modal"
+      >
+        <Modal.Header>
+          <Modal.Title>
+            {mode === "login" ? "Login" : "Registration"} Error
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="my-3 text-center">{isError?.comment}</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="danger"
+            onClick={() => dispatch(resetError())}
+            tabIndex={1}
+          >
+            OK
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
   );
 }
 
@@ -2001,6 +2140,7 @@ function Receive() {
                   <Button
                     ref={(el) => (buttonRefs.current[index] = el)}
                     onClick={() => handleCopy(keypair.publicKey)}
+                    title="Copy public key to clipboard."
                   >
                     {copiedKeys[keypair.publicKey]
                       ? "Copied!"
@@ -2057,39 +2197,50 @@ import {
 import axios from "axios";
 import { fetchEntriesForAllKeys, resetEntries } from "./entriesSlice";
 
-export const login = createAsyncThunk("auth/login", async (_, { dispatch }) => {
-  const clientHashedUserId = getItem("clientHashedUserId");
-  const clientHashedPassword = getItem("clientHashedPassword");
+export const login = createAsyncThunk(
+  "auth/login",
+  async (_, { dispatch, rejectWithValue }) => {
+    try {
+      const clientHashedUserId = getItem("clientHashedUserId");
+      const clientHashedPassword = getItem("clientHashedPassword");
 
-  const response = await axios.post("/api/auth/login", {
-    clientHashedUserId,
-    clientHashedPassword,
-  });
+      const response = await axios.post("/api/auth/login", {
+        clientHashedUserId,
+        clientHashedPassword,
+      });
 
-  await dispatch(fetchEncryptedData());
-  dispatch(fetchEntriesForAllKeys());
+      await dispatch(fetchEncryptedData());
+      dispatch(fetchEntriesForAllKeys());
 
-  return response.data;
-});
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 
 export const register = createAsyncThunk(
   "auth/register",
-  async (_, { dispatch }) => {
-    const clientHashedUserId = getItem("clientHashedUserId");
-    const clientHashedPassword = getItem("clientHashedPassword");
+  async (_, { dispatch, rejectWithValue }) => {
+    try {
+      const clientHashedUserId = getItem("clientHashedUserId");
+      const clientHashedPassword = getItem("clientHashedPassword");
 
-    const response = await axios.post("/api/auth/register", {
-      clientHashedUserId,
-      clientHashedPassword,
-    });
+      const response = await axios.post("/api/auth/register", {
+        clientHashedUserId,
+        clientHashedPassword,
+      });
 
-    if (response.data.clientHashedUserId) {
-      await dispatch(login());
+      if (response.data.clientHashedUserId) {
+        await dispatch(login());
+      }
+
+      dispatch(updateEncryptedData({ keypairs: [], addresses: [] }));
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
     }
-
-    dispatch(updateEncryptedData({ keypairs: [], addresses: [] }));
-
-    return response.data;
   }
 );
 
@@ -2111,21 +2262,38 @@ export const logout = createAsyncThunk(
 
 const authSlice = createSlice({
   name: "auth",
-  initialState: { isAuthenticated: false },
-  reducers: {},
+  initialState: { isAuthenticated: false, error: null },
+  reducers: {
+    resetError: (state) => {
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(login.fulfilled, (state) => {
         state.isAuthenticated = true;
+        state.error = null;
+      })
+      .addCase(login.rejected, (state, action) => {
+        state.isAuthenticated = false;
+        state.error = action.payload;
       })
       .addCase(register.fulfilled, (state) => {
         state.isAuthenticated = true;
+        state.error = null;
+      })
+      .addCase(register.rejected, (state, action) => {
+        state.isAuthenticated = false;
+        state.error = action.payload;
       })
       .addCase(logout.fulfilled, (state) => {
         state.isAuthenticated = false;
+        state.error = null;
       });
   },
 });
+
+export const { resetError } = authSlice.actions;
 
 export default authSlice.reducer;
 
@@ -2523,7 +2691,7 @@ export const addEntry = createAsyncThunk(
     try {
       const balance = await computeAccountBalance(from);
       if (balance < amount) {
-        return thunkAPI.rejectWithValue("Insufficient balance");
+        return thunkAPI.rejectWithValue("Insufficient Balance");
       }
 
       const unsignedEntry = {
@@ -2730,7 +2898,9 @@ export default defineConfig({
       workbox: {
         runtimeCaching: [
           {
-            urlPattern: ({ url }) => url.origin === self.location.origin,
+            urlPattern: ({ url }) =>
+              url.origin === self.location.origin &&
+              !url.pathname.startsWith("/api"),
             handler: "CacheFirst",
             options: {
               cacheName: "static-resources",
@@ -2879,7 +3049,7 @@ processFiles();
 ```json
 {
   "name": "blockcraft-vault",
-  "version": "0.1.0",
+  "version": "0.1.8",
   "type": "module",
   "description": "\"Blockcraft-Vault is a secure, private, and anonymous application designed to store encryption keys and sensitive information using zero-knowledge encryption schemes. Ideal for blockchain wallets, voting systems, and other applications requiring high-security data management, this app ensures that sensitive data remains encrypted and the server never accesses unhashed user IDs, passwords, or data directly. Built on a PERN stack (PostgreSQL, Express, React, Node.js), this project leverages Redux for state management and Vite for building the front-end efficiently.\"",
   "main": "server/src/index.js",
@@ -2966,7 +3136,7 @@ export default [
     "nodemon": "^3.1.0"
   },
   "dependencies": {
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
     "connect-session-sequelize": "^7.1.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -2976,7 +3146,8 @@ export default [
     "passport-local": "^1.0.0",
     "pg": "^8.11.5",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.37.3"
+    "sequelize": "^6.37.3",
+    "volleyball": "^1.5.1"
   }
 }
 
@@ -2995,6 +3166,7 @@ import { dirname, join } from "path";
 import routes from "./routes/index.js";
 import "./routes/passportConfig.js";
 import cors from "cors";
+import volleyball from "volleyball";
 
 const app = express();
 
@@ -3004,6 +3176,7 @@ const sessionStore = new SequelizeStore({
 });
 
 app.use(cors());
+app.use(volleyball);
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -3151,7 +3324,7 @@ startApp();
 import express from "express";
 import passport from "passport";
 import { User } from "../db/index.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 const router = express.Router();
 
@@ -3160,21 +3333,27 @@ router.post("/register", async (req, res, next) => {
     const { clientHashedUserId, clientHashedPassword } = req.body;
 
     if (!clientHashedPassword) {
-      return res.status(400).json({ message: "Password is required" });
+      const err = new Error("Password is required");
+      err.status = 400;
+      err.comment = "Password is required.";
+      return next(err);
     }
 
     const existingUser = await User.findByPk(clientHashedUserId);
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      const err = new Error("User already exists");
+      err.status = 400;
+      err.comment = "Provided email ID already in use.";
+      return next(err);
     }
 
     const reHashedPassword = await bcrypt.hash(clientHashedPassword, 10);
     const newUser = await User.create({ clientHashedUserId, reHashedPassword });
     res.status(201).json(newUser);
-  } catch (error) {
-    error.status = 500;
-    error.comment = "Error processing POST /api/auth/register route";
-    next(error);
+  } catch (err) {
+    err.status = 500;
+    err.comment = "Server issue processing registration. Please try again.";
+    next(err);
   }
 });
 
@@ -3182,19 +3361,19 @@ router.post("/login", (req, res, next) => {
   passport.authenticate("local", (error, user, info) => {
     if (error) {
       error.status = 400;
-      error.comment = "Error processing POST /api/auth/login route";
+      error.comment = "Server issue processing login. Please try again.";
       return next(error);
     }
     if (!user) {
       const err = new Error(info.message);
       err.status = 404;
-      err.comment = "Authentication failed in POST /api/auth/login route";
+      err.comment = "No match for provided credentials.";
       return next(err);
     }
     req.logIn(user, (error) => {
       if (error) {
         error.status = 400;
-        error.comment = "Bad request in POST /api/auth/login route";
+        error.comment = "Server issue processing login. Please try again.";
         return next(error);
       }
       return res.status(200).json(user);
@@ -3287,7 +3466,7 @@ export default router;
 ```javascript
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { User } from "../db/index.js";
 
 passport.use(
@@ -3588,6 +3767,8 @@ function AddressAdd() {
                 type="text"
                 {...register("label")}
                 isInvalid={!!errors.label}
+                title="Type a friendly name for this contact."
+                placeholder="Type a friendly name for this contact"
               />
               <Form.Control.Feedback type="invalid">
                 {errors.label?.message}
@@ -3600,8 +3781,14 @@ function AddressAdd() {
                   type="text"
                   {...register("publicKey")}
                   isInvalid={!!errors.publicKey}
+                  placeholder="Type, paste or scan"
+                  title="Type or paste a public key, or scan a QR code."
                 />
-                <Button variant="outline-secondary" className="rounded-right">
+                <Button
+                  variant="outline-secondary"
+                  className="rounded-right"
+                  title="Click to scan QR code."
+                >
                   <QRCodeScanner onScanSuccess={handleScanSuccess} />
                 </Button>
                 <Form.Control.Feedback type="invalid">
@@ -3814,7 +4001,10 @@ function AddressUpdate({ address }) {
                   {...register("publicKey")}
                   isInvalid={!!errors.publicKey}
                 />
-                <Button variant="outline-secondary rounded-right">
+                <Button
+                  variant="outline-secondary rounded-right"
+                  title="Click to scan a different QR code."
+                >
                   <QRCodeScanner onScanSuccess={handleScanSuccess} />
                 </Button>
                 <Form.Control.Feedback type="invalid">
@@ -3873,8 +4063,10 @@ function Addresses() {
   return (
     <Container>
       <div className="d-flex align-items-center mb-3 h2">
-        <span className="me-3">Contacts</span>
-        <AddressAdd />
+        <div className="me-3">Contacts</div>
+        <div title="Add New Contact">
+          <AddressAdd />
+        </div>
       </div>
       <Container>
         <Row className="mt-3 mb-3 border-bottom fw-bold">
@@ -3885,12 +4077,14 @@ function Addresses() {
         {addresses.map((address) => (
           <Row key={address.nanoId} className="pb-3 mb-3 border-bottom">
             <Col xs={5}>{address.label}</Col>
-            <Col xs={4}>{formatKey(address.publicKey)}</Col>
+            <Col xs={4} title={address.publicKey}>
+              {formatKey(address.publicKey)}
+            </Col>
             <Col xs={3} className="text-center d-flex ">
-              <div className="me-2">
+              <div className="me-2" title="Edit Contact">
                 <AddressUpdate address={address} />
               </div>
-              <div>
+              <div title="Delete Contact">
                 <AddressDelete address={address} />
               </div>
             </Col>
@@ -4126,8 +4320,12 @@ function EntryAdd({ show, handleClose }) {
   const dispatch = useDispatch();
 
   const [selectedPrivateKey, setSelectedPrivateKey] = useState("");
+  const [selectedFromOption, setSelectedFromOption] = useState(null);
   const [selectedToOption, setSelectedToOption] = useState(null);
   const [toInputValue, setToInputValue] = useState("");
+  const [showResultModal, setShowResultModal] = useState(false);
+  const [resultModalHeader, setResultModalHeader] = useState("");
+  const [resultModalMessage, setResultModalMessage] = useState("");
 
   const addresses = useSelector(
     (state) => state.data.unencryptedData?.addresses || []
@@ -4141,6 +4339,7 @@ function EntryAdd({ show, handleClose }) {
       setSelectedPrivateKey("");
       reset();
       setSelectedToOption(null);
+      setSelectedFromOption(null);
     }
   }, [show, reset]);
 
@@ -4157,18 +4356,26 @@ function EntryAdd({ show, handleClose }) {
     clearErrors("from");
     try {
       await dispatch(addEntry(data)).unwrap();
-      console.log("Entry Simulated", data);
+      setResultModalHeader("Entry Succeeded!");
+      setResultModalMessage(
+        `<p>From: <br/>${data.from}</p><p>To:<br/> ${data.to}</p><p>Amount: ${data.amount}</p>`
+      );
+      setShowResultModal(true);
+      handleClose();
     } catch (error) {
+      setResultModalHeader("Entry Failed!");
       if (error instanceof Error) {
-        console.error("Failed to add entry", error.message);
+        setResultModalMessage(`<p>${error.message}</p>`);
+        setShowResultModal(true);
       } else {
-        console.error("An unknown error occurred while adding the entry");
+        setResultModalMessage(`<p>${error}</p>`);
+        setShowResultModal(true);
       }
     }
-    handleClose();
   };
 
   const handleFromSelectChange = (selectedFromOption) => {
+    setSelectedFromOption(selectedFromOption);
     setValue("from", selectedFromOption.value);
     clearErrors("from");
     const selectedKeypair = keypairs.find(
@@ -4204,7 +4411,7 @@ function EntryAdd({ show, handleClose }) {
     <>
       <Modal
         centered
-        show={show}
+        show={show && !showResultModal}
         onHide={handleClose}
         contentClassName="dark-modal"
       >
@@ -4225,6 +4432,9 @@ function EntryAdd({ show, handleClose }) {
                 }))}
                 isInvalid={!!errors.from}
                 onChange={handleFromSelectChange}
+                value={selectedFromOption}
+                placeholder="Select keypair to send from"
+                title="Select keypair to send from."
                 styles={{
                   control: (provided) => ({
                     ...provided,
@@ -4275,6 +4485,7 @@ function EntryAdd({ show, handleClose }) {
                   inputValue={toInputValue}
                   value={selectedToOption}
                   placeholder="Select contact, type key or scan"
+                  title="Select contact, type key or scan QR code to send to."
                   styles={{
                     control: (provided) => ({
                       ...provided,
@@ -4303,6 +4514,7 @@ function EntryAdd({ show, handleClose }) {
                 <Button
                   variant="outline-secondary"
                   className="flex-grow-0 rounded-right"
+                  title="Click to scan a QR code."
                 >
                   <QRCodeScanner onScanSuccess={handleScanSuccess} />
                 </Button>
@@ -4324,6 +4536,8 @@ function EntryAdd({ show, handleClose }) {
                 {...register("amount")}
                 isInvalid={!!errors.amount}
                 className="text-end"
+                placeholder="Enter numeric amount to send"
+                title="Enter numeric amount to send.      "
               />
               <Form.Control.Feedback type="invalid">
                 {errors.amount?.message}
@@ -4344,6 +4558,34 @@ function EntryAdd({ show, handleClose }) {
           </Button>
         </Modal.Footer>
       </Modal>
+      {showResultModal && (
+        <Modal
+          show={showResultModal}
+          onHide={() => setShowResultModal(false)}
+          centered
+          contentClassName="dark-modal"
+        >
+          <Modal.Header>
+            <Modal.Title>{resultModalHeader}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body
+            dangerouslySetInnerHTML={{ __html: resultModalMessage }}
+            className={`text-break ${
+              resultModalHeader === "Entry Succeeded!" ? "" : "text-center my-3"
+            }`}
+          />
+          <Modal.Footer>
+            <Button
+              variant={
+                resultModalHeader === "Entry Succeeded!" ? "primary" : "danger"
+              }
+              onClick={() => setShowResultModal(false)}
+            >
+              OK
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      )}
     </>
   );
 }
@@ -4401,6 +4643,13 @@ const selectKeypairs = createSelector(
   (state) => state.data.unencryptedData,
   (unencryptedData) => unencryptedData?.keypairs || []
 );
+
+function generateKeyPair() {
+  const keyPair = ec.genKeyPair();
+  const privateKey = keyPair.getPrivate("hex");
+  const publicKeyCompressed = keyPair.getPublic().encode("hex", true);
+  return { privateKey, publicKeyCompressed };
+}
 
 function KeypairAdd() {
   const keypairs = useSelector(selectKeypairs);
@@ -4511,6 +4760,8 @@ function KeypairAdd() {
                 type="text"
                 {...register("label")}
                 isInvalid={!!errors.label}
+                title="Type a friendly name for this keypair."
+                placeholder="Type a friendly name for this keypair"
               />
               <Form.Control.Feedback type="invalid">
                 {errors.label?.message}
@@ -4518,14 +4769,34 @@ function KeypairAdd() {
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formPublicKey">
-              <Form.Label>Public Key</Form.Label>
+              <Form.Label className="d-flex justify-content-between">
+                <div className="py-0">Public Key</div>
+                <Button
+                  title="If you don't have a keypair, you can generate one by clicking here."
+                  variant="link"
+                  className="py-0 text-orange"
+                  onClick={() => {
+                    const { privateKey, publicKeyCompressed } =
+                      generateKeyPair();
+                    setValue("publicKey", publicKeyCompressed);
+                    setValue("privateKey", privateKey);
+                  }}
+                >
+                  Generate New Keypair
+                </Button>
+              </Form.Label>
               <InputGroup>
                 <Form.Control
                   type="text"
                   {...register("publicKey")}
                   isInvalid={!!errors.publicKey}
+                  placeholder="Type, paste, scan or generate"
+                  title="Type a public key, scan a QR code or generate a new keypair."
                 />
-                <Button variant="outline-secondary rounded-right">
+                <Button
+                  variant="outline-secondary rounded-right"
+                  title="Click to scan QR code."
+                >
                   <QRCodeScanner onScanSuccess={handleScanSuccess} />
                 </Button>
                 <Form.Control.Feedback type="invalid">
@@ -4541,10 +4812,13 @@ function KeypairAdd() {
                   type={showPassword ? "text" : "password"}
                   {...register("privateKey")}
                   isInvalid={!!errors.privateKey}
+                  placeholder="Type, paste or generate"
+                  title="Type or paste private key here.."
                 />
                 <Button
                   variant="outline-secondary rounded-right"
                   onClick={() => setShowPassword(!showPassword)}
+                  title="Click to toggle private key visibility."
                 >
                   {showPassword ? (
                     <BsEyeSlash className="text-light" />
@@ -4791,7 +5065,10 @@ function KeypairUpdate({ keypair }) {
                   {...register("publicKey")}
                   isInvalid={!!errors.publicKey}
                 />
-                <Button variant="outline-secondary rounded-right">
+                <Button
+                  variant="outline-secondary rounded-right"
+                  title="Click to scan a different QR code."
+                >
                   <QRCodeScanner onScanSuccess={handleScanSuccess} />
                 </Button>
                 <Form.Control.Feedback type="invalid">
@@ -4811,6 +5088,7 @@ function KeypairUpdate({ keypair }) {
                 <Button
                   variant="outline-secondary rounded-right"
                   onClick={() => setShowPassword(!showPassword)}
+                  title="Click to toggle private key visibility."
                 >
                   {showPassword ? (
                     <BsEyeSlash className="text-light" />
@@ -4873,8 +5151,10 @@ function Keypairs() {
   return (
     <Container>
       <div className="d-flex align-items-center mb-3 h2">
-        <span className="me-3">Keychain</span>
-        <KeypairAdd />
+        <div className="me-3">Keychain</div>
+        <div title="Add New Keypair">
+          <KeypairAdd />
+        </div>
       </div>
       <Container>
         <Row className="mt-3 mb-3 border-bottom fw-bold">
@@ -4885,12 +5165,14 @@ function Keypairs() {
         {keypairs.map((keypair) => (
           <Row key={keypair.nanoId} className="pb-3 mb-3 border-bottom">
             <Col xs={5}>{keypair.label}</Col>
-            <Col xs={4}>{formatKey(keypair.publicKey)}</Col>
+            <Col xs={4} title={keypair.publicKey}>
+              {formatKey(keypair.publicKey)}
+            </Col>
             <Col xs={3} className="text-center d-flex ">
-              <div className="me-2">
+              <div className="me-2" title="Edit Keypair">
                 <KeypairUpdate keypair={keypair} />
               </div>
-              <div>
+              <div title="Delete Keypair">
                 <KeypairDelete keypair={keypair} />
               </div>
             </Col>
@@ -4908,36 +5190,46 @@ export default Keypairs;
 # client/src/Components/Login.jsx
 
 ```javascript
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { processCredentials } from "../store/cryptoMemStore";
-import { login, logout, register } from "../store/authSlice";
 import {
-  Form,
-  Button,
-  Container,
-  Row,
-  Col,
-  FloatingLabel,
-} from "react-bootstrap";
+  login,
+  register as registerThunk,
+  resetError,
+} from "../store/authSlice";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { Form, Button, Container, Row, Col, Modal } from "react-bootstrap";
 import { BsSafe } from "react-icons/bs";
 
-function Login() {
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+const schema = yup.object({
+  email: yup.string().email().required(),
+  password: yup.string().required(),
+  confirmPassword: yup.string(),
+});
 
-  const [email, setEmail] = useState("chris@armbrustermail.com");
-  const [password, setPassword] = useState("1234");
-  const [confirmPassword, setConfirmPassword] = useState("1234");
+function Login() {
+  const isError = useSelector((state) => state.auth.error);
+
   const [mode, setMode] = useState("login");
   const [isMobile, setIsMobile] = useState(
     window.innerWidth > 576 ? false : true
   );
-
   const location = useLocation();
   const navigate = useNavigate();
-
   const dispatch = useDispatch();
+
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
 
   useEffect(() => {
     const handleResize = () => {
@@ -4957,50 +5249,38 @@ function Login() {
     }
   }, [location, navigate]);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const onSubmit = async (data) => {
+    let { email, password, confirmPassword } = data;
+
+    email = email.toLowerCase();
 
     if (mode === "register" && password !== confirmPassword) {
-      alert("Passwords do not match!");
+      setError("confirmPassword", {
+        type: "manual",
+        message: "Passwords do not match",
+      });
       return;
     }
 
-    await processCredentials(email, password);
+    try {
+      await processCredentials(email, password);
 
-    if (mode === "login") {
-      dispatch(login());
-    } else {
-      dispatch(register());
+      if (mode === "login") {
+        dispatch(login());
+      } else {
+        dispatch(registerThunk());
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
-  if (isAuthenticated) {
-    return (
-      <div>
-        <p>Logged in</p>
-        <button
-          onClick={() => {
-            setMode("login");
-            dispatch(logout());
-          }}
-        >
-          Logout
-        </button>
-      </div>
-    );
-  }
-
   return (
-    <Container className="d-flex flex-column justify-content-center vh-100 mw-375">
-      <Row className="justify-content-md-center">
-        <Col xs md="6" lg="5" xl="4">
-          <Container
-            className={
-              isMobile
-                ? "justify-content-center"
-                : "border border-2 px-2 rounded pb-3 my-3"
-            }
-          >
+    <>
+      <Modal show={!isError} centered contentClassName="dark-modal">
+        <Form onSubmit={handleSubmit(onSubmit)} className="px-2">
+          <Modal.Body>
+            {" "}
             <h1
               className={`${
                 isMobile ? "display-4" : "h2"
@@ -5015,74 +5295,112 @@ function Login() {
             >
               {mode === "login" ? "Login" : "Registration"}
             </h2>
-            <Form onSubmit={handleSubmit}>
-              <FloatingLabel
-                controlId="floatingEmail"
-                label="Email address"
-                className="mb-3"
-              >
-                <Form.Control
-                  type="email"
-                  value={email}
-                  placeholder="Enter email"
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  tabIndex={1}
-                />
-              </FloatingLabel>
-
-              <FloatingLabel
-                controlId="floatingPassword"
-                label="Password"
-                className="mb-3"
-              >
+            <Form.Group className="mb-3" controlId="email">
+              <Form.Label>Email address</Form.Label>
+              <Form.Control
+                type="email"
+                name="email"
+                placeholder={
+                  mode === "login" ? 'try "demo@email.com"' : "Enter email ID"
+                }
+                {...register("email")}
+                isInvalid={!!errors.email}
+                tabIndex={1}
+                title={
+                  mode === "login"
+                    ? "Enter your email ID to login or use 'demo@email.com' to test drive the app."
+                    : "Enter a valid email address to use as your login id.  This will be hashed before being sent to the server and stored." +
+                      " The server will never have access to your email address."
+                }
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.email?.message}
+              </Form.Control.Feedback>
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="password">
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type="password"
+                name="password"
+                title={
+                  mode === "login"
+                    ? "Enter password.  If test driving the app with 'demo@email.com' use 'demo' as the password."
+                    : "Enter a password to use for login. This will be hashed before being sent to the server " +
+                      "and then hashed again by the server and stored. The server will never have access to to your password. " +
+                      "This password will be used to log you in and encrypt/decrpyt your data before sending it to " +
+                      "and after receiving it from the server. It is important to remember this password! " +
+                      "This is a zero-knowledge encryption app that prioritizes privacy, anonymity and security over convenience. " +
+                      "Your password cannot be recovered if lost. If you forget your password, you will need to register again and lose your data."
+                }
+                placeholder={mode === "login" ? 'try "demo"' : "Enter password"}
+                {...register("password")}
+                tabIndex={2}
+                isInvalid={!!errors.password}
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.password?.message}
+              </Form.Control.Feedback>
+            </Form.Group>
+            {mode === "register" && (
+              <Form.Group className="mb-3" controlId="confirmPassword">
+                <Form.Label>Confirm Password</Form.Label>
                 <Form.Control
                   type="password"
-                  value={password}
-                  placeholder="Password"
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  tabIndex={2}
+                  name="confirmPassword"
+                  title="Re-enter the password you entered above to confirm it."
+                  placeholder="Confirm password"
+                  {...register("confirmPassword")}
+                  isInvalid={!!errors.confirmPassword}
+                  tabIndex={3}
                 />
-              </FloatingLabel>
+                <Form.Control.Feedback type="invalid">
+                  {errors.confirmPassword?.message}
+                </Form.Control.Feedback>
+              </Form.Group>
+            )}{" "}
+            <div className="d-flex justify-content-between w-100">
+              <Button
+                variant="link"
+                type="button"
+                onClick={() => setMode(mode === "login" ? "register" : "login")}
+                className="text-decoration-none"
+                tabIndex={5}
+              >
+                {mode === "login" ? "Register Instead" : "Login Instead"}
+              </Button>
+              <Button variant="primary" type="submit" tabIndex={4}>
+                {mode === "login" ? "Login" : "Register"}
+              </Button>
+            </div>
+          </Modal.Body>
+        </Form>
+      </Modal>
 
-              {mode === "register" && (
-                <FloatingLabel
-                  controlId="floatingConfirmPassword"
-                  label="Confirm Password"
-                  className="mb-3"
-                >
-                  <Form.Control
-                    type="password"
-                    value={confirmPassword}
-                    placeholder="Confirm Password"
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                    tabIndex={3}
-                  />
-                </FloatingLabel>
-              )}
-              <div className="d-flex justify-content-between w-100">
-                <Button
-                  variant="link"
-                  type="button"
-                  onClick={() =>
-                    setMode(mode === "login" ? "register" : "login")
-                  }
-                  className="text-decoration-none"
-                  tabIndex={5}
-                >
-                  {mode === "login" ? "Register Instead" : "Login Instead"}
-                </Button>
-                <Button variant="primary" type="submit" tabIndex={4}>
-                  {mode === "login" ? "Login" : "Register"}
-                </Button>
-              </div>
-            </Form>
-          </Container>
-        </Col>
-      </Row>
-    </Container>
+      <Modal
+        show={isError}
+        onHide={() => dispatch(resetError())}
+        centered
+        contentClassName="dark-modal"
+      >
+        <Modal.Header>
+          <Modal.Title>
+            {mode === "login" ? "Login" : "Registration"} Error
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="my-3 text-center">{isError?.comment}</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="danger"
+            onClick={() => dispatch(resetError())}
+            tabIndex={1}
+          >
+            OK
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
   );
 }
 
@@ -5415,6 +5733,7 @@ function Receive() {
                   <Button
                     ref={(el) => (buttonRefs.current[index] = el)}
                     onClick={() => handleCopy(keypair.publicKey)}
+                    title="Copy public key to clipboard."
                   >
                     {copiedKeys[keypair.publicKey]
                       ? "Copied!"
@@ -5471,39 +5790,50 @@ import {
 import axios from "axios";
 import { fetchEntriesForAllKeys, resetEntries } from "./entriesSlice";
 
-export const login = createAsyncThunk("auth/login", async (_, { dispatch }) => {
-  const clientHashedUserId = getItem("clientHashedUserId");
-  const clientHashedPassword = getItem("clientHashedPassword");
+export const login = createAsyncThunk(
+  "auth/login",
+  async (_, { dispatch, rejectWithValue }) => {
+    try {
+      const clientHashedUserId = getItem("clientHashedUserId");
+      const clientHashedPassword = getItem("clientHashedPassword");
 
-  const response = await axios.post("/api/auth/login", {
-    clientHashedUserId,
-    clientHashedPassword,
-  });
+      const response = await axios.post("/api/auth/login", {
+        clientHashedUserId,
+        clientHashedPassword,
+      });
 
-  await dispatch(fetchEncryptedData());
-  dispatch(fetchEntriesForAllKeys());
+      await dispatch(fetchEncryptedData());
+      dispatch(fetchEntriesForAllKeys());
 
-  return response.data;
-});
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 
 export const register = createAsyncThunk(
   "auth/register",
-  async (_, { dispatch }) => {
-    const clientHashedUserId = getItem("clientHashedUserId");
-    const clientHashedPassword = getItem("clientHashedPassword");
+  async (_, { dispatch, rejectWithValue }) => {
+    try {
+      const clientHashedUserId = getItem("clientHashedUserId");
+      const clientHashedPassword = getItem("clientHashedPassword");
 
-    const response = await axios.post("/api/auth/register", {
-      clientHashedUserId,
-      clientHashedPassword,
-    });
+      const response = await axios.post("/api/auth/register", {
+        clientHashedUserId,
+        clientHashedPassword,
+      });
 
-    if (response.data.clientHashedUserId) {
-      await dispatch(login());
+      if (response.data.clientHashedUserId) {
+        await dispatch(login());
+      }
+
+      dispatch(updateEncryptedData({ keypairs: [], addresses: [] }));
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
     }
-
-    dispatch(updateEncryptedData({ keypairs: [], addresses: [] }));
-
-    return response.data;
   }
 );
 
@@ -5525,21 +5855,38 @@ export const logout = createAsyncThunk(
 
 const authSlice = createSlice({
   name: "auth",
-  initialState: { isAuthenticated: false },
-  reducers: {},
+  initialState: { isAuthenticated: false, error: null },
+  reducers: {
+    resetError: (state) => {
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(login.fulfilled, (state) => {
         state.isAuthenticated = true;
+        state.error = null;
+      })
+      .addCase(login.rejected, (state, action) => {
+        state.isAuthenticated = false;
+        state.error = action.payload;
       })
       .addCase(register.fulfilled, (state) => {
         state.isAuthenticated = true;
+        state.error = null;
+      })
+      .addCase(register.rejected, (state, action) => {
+        state.isAuthenticated = false;
+        state.error = action.payload;
       })
       .addCase(logout.fulfilled, (state) => {
         state.isAuthenticated = false;
+        state.error = null;
       });
   },
 });
+
+export const { resetError } = authSlice.actions;
 
 export default authSlice.reducer;
 
@@ -5937,7 +6284,7 @@ export const addEntry = createAsyncThunk(
     try {
       const balance = await computeAccountBalance(from);
       if (balance < amount) {
-        return thunkAPI.rejectWithValue("Insufficient balance");
+        return thunkAPI.rejectWithValue("Insufficient Balance");
       }
 
       const unsignedEntry = {
@@ -6144,7 +6491,9 @@ export default defineConfig({
       workbox: {
         runtimeCaching: [
           {
-            urlPattern: ({ url }) => url.origin === self.location.origin,
+            urlPattern: ({ url }) =>
+              url.origin === self.location.origin &&
+              !url.pathname.startsWith("/api"),
             handler: "CacheFirst",
             options: {
               cacheName: "static-resources",
@@ -6293,7 +6642,7 @@ processFiles();
 ```json
 {
   "name": "blockcraft-vault",
-  "version": "0.1.0",
+  "version": "0.1.8",
   "type": "module",
   "description": "\"Blockcraft-Vault is a secure, private, and anonymous application designed to store encryption keys and sensitive information using zero-knowledge encryption schemes. Ideal for blockchain wallets, voting systems, and other applications requiring high-security data management, this app ensures that sensitive data remains encrypted and the server never accesses unhashed user IDs, passwords, or data directly. Built on a PERN stack (PostgreSQL, Express, React, Node.js), this project leverages Redux for state management and Vite for building the front-end efficiently.\"",
   "main": "server/src/index.js",
@@ -6380,7 +6729,7 @@ export default [
     "nodemon": "^3.1.0"
   },
   "dependencies": {
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
     "connect-session-sequelize": "^7.1.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -6390,7 +6739,8 @@ export default [
     "passport-local": "^1.0.0",
     "pg": "^8.11.5",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.37.3"
+    "sequelize": "^6.37.3",
+    "volleyball": "^1.5.1"
   }
 }
 
@@ -6409,6 +6759,7 @@ import { dirname, join } from "path";
 import routes from "./routes/index.js";
 import "./routes/passportConfig.js";
 import cors from "cors";
+import volleyball from "volleyball";
 
 const app = express();
 
@@ -6418,6 +6769,7 @@ const sessionStore = new SequelizeStore({
 });
 
 app.use(cors());
+app.use(volleyball);
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -6565,7 +6917,7 @@ startApp();
 import express from "express";
 import passport from "passport";
 import { User } from "../db/index.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 const router = express.Router();
 
@@ -6574,21 +6926,27 @@ router.post("/register", async (req, res, next) => {
     const { clientHashedUserId, clientHashedPassword } = req.body;
 
     if (!clientHashedPassword) {
-      return res.status(400).json({ message: "Password is required" });
+      const err = new Error("Password is required");
+      err.status = 400;
+      err.comment = "Password is required.";
+      return next(err);
     }
 
     const existingUser = await User.findByPk(clientHashedUserId);
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      const err = new Error("User already exists");
+      err.status = 400;
+      err.comment = "Provided email ID already in use.";
+      return next(err);
     }
 
     const reHashedPassword = await bcrypt.hash(clientHashedPassword, 10);
     const newUser = await User.create({ clientHashedUserId, reHashedPassword });
     res.status(201).json(newUser);
-  } catch (error) {
-    error.status = 500;
-    error.comment = "Error processing POST /api/auth/register route";
-    next(error);
+  } catch (err) {
+    err.status = 500;
+    err.comment = "Server issue processing registration. Please try again.";
+    next(err);
   }
 });
 
@@ -6596,19 +6954,19 @@ router.post("/login", (req, res, next) => {
   passport.authenticate("local", (error, user, info) => {
     if (error) {
       error.status = 400;
-      error.comment = "Error processing POST /api/auth/login route";
+      error.comment = "Server issue processing login. Please try again.";
       return next(error);
     }
     if (!user) {
       const err = new Error(info.message);
       err.status = 404;
-      err.comment = "Authentication failed in POST /api/auth/login route";
+      err.comment = "No match for provided credentials.";
       return next(err);
     }
     req.logIn(user, (error) => {
       if (error) {
         error.status = 400;
-        error.comment = "Bad request in POST /api/auth/login route";
+        error.comment = "Server issue processing login. Please try again.";
         return next(error);
       }
       return res.status(200).json(user);
@@ -6701,7 +7059,7 @@ export default router;
 ```javascript
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { User } from "../db/index.js";
 
 passport.use(
