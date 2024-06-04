@@ -64,6 +64,7 @@ function Receive() {
                   <Button
                     ref={(el) => (buttonRefs.current[index] = el)}
                     onClick={() => handleCopy(keypair.publicKey)}
+                    title="Copy public key to clipboard."
                   >
                     {copiedKeys[keypair.publicKey]
                       ? "Copied!"

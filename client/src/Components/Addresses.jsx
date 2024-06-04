@@ -17,8 +17,10 @@ function Addresses() {
   return (
     <Container>
       <div className="d-flex align-items-center mb-3 h2">
-        <span className="me-3">Contacts</span>
-        <AddressAdd />
+        <div className="me-3">Contacts</div>
+        <div title="Add New Contact">
+          <AddressAdd />
+        </div>
       </div>
       <Container>
         <Row className="mt-3 mb-3 border-bottom fw-bold">
@@ -29,12 +31,14 @@ function Addresses() {
         {addresses.map((address) => (
           <Row key={address.nanoId} className="pb-3 mb-3 border-bottom">
             <Col xs={5}>{address.label}</Col>
-            <Col xs={4}>{formatKey(address.publicKey)}</Col>
+            <Col xs={4} title={address.publicKey}>
+              {formatKey(address.publicKey)}
+            </Col>
             <Col xs={3} className="text-center d-flex ">
-              <div className="me-2">
+              <div className="me-2" title="Edit Contact">
                 <AddressUpdate address={address} />
               </div>
-              <div>
+              <div title="Delete Contact">
                 <AddressDelete address={address} />
               </div>
             </Col>

@@ -89,6 +89,11 @@ body {
   color: white;
 }
 
+.darker-modal {
+  background-color: var(--bs-dark);
+  color: white;
+}
+
 .btn-close-color {
   color: white;
 }

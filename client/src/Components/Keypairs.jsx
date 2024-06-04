@@ -15,8 +15,10 @@ function Keypairs() {
   return (
     <Container>
       <div className="d-flex align-items-center mb-3 h2">
-        <span className="me-3">Keychain</span>
-        <KeypairAdd />
+        <div className="me-3">Keychain</div>
+        <div title="Add New Keypair">
+          <KeypairAdd />
+        </div>
       </div>
       <Container>
         <Row className="mt-3 mb-3 border-bottom fw-bold">
@@ -27,12 +29,14 @@ function Keypairs() {
         {keypairs.map((keypair) => (
           <Row key={keypair.nanoId} className="pb-3 mb-3 border-bottom">
             <Col xs={5}>{keypair.label}</Col>
-            <Col xs={4}>{formatKey(keypair.publicKey)}</Col>
+            <Col xs={4} title={keypair.publicKey}>
+              {formatKey(keypair.publicKey)}
+            </Col>
             <Col xs={3} className="text-center d-flex ">
-              <div className="me-2">
+              <div className="me-2" title="Edit Keypair">
                 <KeypairUpdate keypair={keypair} />
               </div>
-              <div>
+              <div title="Delete Keypair">
                 <KeypairDelete keypair={keypair} />
               </div>
             </Col>
