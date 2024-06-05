@@ -23,7 +23,5 @@ services:
       DATABASE_URL: postgres://postgres:postgres@db/blockcraft-vault
       SESSION_SECRET: abacadabra
       VITE_BLOCKCRAFT_NODE_URL: https://node1.blockcraft.rev4labs.com
-      VITE_DEMO_ACCOUNT_EMAIL: demo@email.com
-      VITE_DEMO_ACCOUNT_PASSWORD: demo
 volumes:
   db_data:

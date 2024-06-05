@@ -110,8 +110,8 @@ export default defineConfig({
     host: "0.0.0.0",
     port: 8080,
     https: {
-      key: fs.readFileSync(join(__dirname, "192.168.1.195+2-key.pem")),
-      cert: fs.readFileSync(join(__dirname, "192.168.1.195+2.pem")),
+      key: fs.readFileSync(join(__dirname, "vault-key.pem")),
+      cert: fs.readFileSync(join(__dirname, "vault-cert.pem")),
     },
     proxy: {
       "/api": {
