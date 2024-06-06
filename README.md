@@ -6,15 +6,23 @@ Blockcraft Vault is my blockchain wallet app for managing [Blockcraft](https://g
 
 ## Features
 
-- 💼 **Blockchain Asset Management**: Blockcraft Vault allows users to manage their Blockcraft assets directly within the application. This includes viewing, sending, and receiving assets on the blockchain.
-- 🕵️‍♂️ **Zero-Knowledge Encryption**: Ensures complete privacy, anonymity, and security by keeping your data and identity inaccessible to the server.
-- 🔒 **User Authentication**: Secure login and user management with encrypted credentials. The server never sees your unhashed email id and password.
-- 🖥️ **Client-Side Encryption/Decryption**: Encrypts and decrypts data on the client side, keeping your data private and secure, even from the server.
-- 📷 **QR Code Integration**: Incorporates QR code functionality for easy sharing and scanning of public encryption keys.
-- 🛠️ **Built on PERN Stack**: Utilizes PostgreSQL, Express, React, and Node.js for robust performance.
-- ⚙️ **Efficient State Management**: Employs Redux for managing application state.
-- 🌐 **Modern Front-End**: Uses Vite for building and fast refresh with React.
-- 📲 **Progressive Web App (PWA) Support**: Blockcraft Vault can be installed and used as a Progressive Web App, allowing users to enjoy a native app-like experience on their devices.
+💼 **Blockchain Asset Management**: Blockcraft Vault allows users to manage their Blockcraft assets directly within the application. This includes viewing, sending, and receiving assets on the blockchain.
+
+🕵️‍♂️ **Zero-Knowledge Encryption**: Ensures complete privacy, anonymity, and security by keeping your data and identity inaccessible to the server.
+
+🔒 **User Authentication**: Secure login and user management with encrypted credentials. The server never sees your unhashed email id and password.
+
+🖥️ **Client-Side Encryption/Decryption**: Encrypts and decrypts data on the client side, keeping your data private and secure, even from the server.
+
+📷 **QR Code Integration**: Incorporates QR code functionality for easy sharing and scanning of public encryption keys.
+
+🛠️ **Built on PERN Stack**: Utilizes PostgreSQL, Express, React, and Node.js for robust performance.
+
+⚙️ **Efficient State Management**: Employs Redux for managing application state.
+
+🌐 **Modern Front-End**: Uses Vite for building and fast refresh with React.
+
+📲 **Progressive Web App (PWA) Support**: Blockcraft Vault can be installed and used as a Progressive Web App, allowing users to enjoy a native app-like experience on their devices.
 
 ## Working Demo
 
