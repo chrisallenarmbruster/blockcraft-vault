@@ -1,19 +1,20 @@
-# Blockcraft Vault
+# Blockcraft Vault 🛡️
 
-Blockcraft Vault is my advanced progressive web application (PWA) designed to secure private information such as encryption keys through a zero-knowledge encryption scheme. This ensures that the server never sees or stores your unhashed user ID, password, or unencrypted data. It's ideal for use cases like blockchain wallets, blockchain voting ballots, and more. Blockcraft Vault is part of my Blockcraft ecosystem, a collection of tools and applications for composing blockchains.
+Blockcraft Vault is my blockchain wallet app for managing [Blockcraft](https://github.com/chrisallenarmbruster/blockcraft) assets using a zero-knowledge encryption scheme 🔐. It is part of my Blockcraft ecosystem for composing blockchains. The server never sees or stores your unhashed user id, password, and data 🤫. It is implemented as a progressive web application (PWA), offering a native app-like experience on all devices 📱. It's ideal for use cases like blockchain wallets, blockchain voting ballots, and more 💼.
 
 [![Blockcraft Vault Composite](/client/public/images/screenshots/composite.png)](https://vault.blockcraft.rev4labs.com)
 
 ## Features
 
-- **Zero-Knowledge Encryption:** Ensures complete privacy, anonymity and security by keeping your data and identity inaccessible to the server.
-- **User Authentication:** Secure login and user management with encrypted credentials. The server never sees your unhashed email id and password.
-- **Client-Side Encryption/Decryption:** Encrypts and decrypts data on the client side, keeping your data private and secure, even from the server.
-- **QR Code Integration:** Incorporates QR code functionality for easy sharing and scanning of public encryption keys.
-- **Built on PERN Stack:** Utilizes PostgreSQL, Express, React, and Node.js for robust performance.
-- **Efficient State Management:** Employs Redux for managing application state.
-- **Modern Front-End:** Uses Vite for building and fast refresh with React.
-- **Progressive Web App (PWA) Support:** Blockcraft Vault can be installed and used as a Progressive Web App, allowing users to enjoy a native app-like experience on their devices.
+- 💼 **Blockchain Asset Management**: Blockcraft Vault allows users to manage their Blockcraft assets directly within the application. This includes viewing, sending, and receiving assets on the blockchain.
+- 🕵️‍♂️ **Zero-Knowledge Encryption**: Ensures complete privacy, anonymity, and security by keeping your data and identity inaccessible to the server.
+- 🔒 **User Authentication**: Secure login and user management with encrypted credentials. The server never sees your unhashed email id and password.
+- 🖥️ **Client-Side Encryption/Decryption**: Encrypts and decrypts data on the client side, keeping your data private and secure, even from the server.
+- 📷 **QR Code Integration**: Incorporates QR code functionality for easy sharing and scanning of public encryption keys.
+- 🛠️ **Built on PERN Stack**: Utilizes PostgreSQL, Express, React, and Node.js for robust performance.
+- ⚙️ **Efficient State Management**: Employs Redux for managing application state.
+- 🌐 **Modern Front-End**: Uses Vite for building and fast refresh with React.
+- 📲 **Progressive Web App (PWA) Support**: Blockcraft Vault can be installed and used as a Progressive Web App, allowing users to enjoy a native app-like experience on their devices.
 
 ## Working Demo
 
@@ -27,7 +28,7 @@ Check out the [Blockcraft Vault Demo](https://vault.blockcraft.rev4labs.com)
 
 <br>
 
-### Manage Keypairs (Installed PWA View)
+### Manage Keypairs (PWA View)
 
 ![Manage Keypairs](/client/public/images/screenshots/add-keypair-sm-pwa.png)
 
@@ -39,13 +40,13 @@ Check out the [Blockcraft Vault Demo](https://vault.blockcraft.rev4labs.com)
 
 <br>
 
-### Send Assets (Modal)
+### Send Assets
 
 ![Send Assets](/client/public/images/screenshots/send-modal.png)
 
 <br>
 
-## Installation
+## Installation 📦
 
 ### Prerequisites
 
@@ -113,7 +114,7 @@ Make sure you have the following installed:
    In production, you will need to set up a reverse proxy like Nginx to serve the client and server on the same port and secure it with HTTPS. You can use a service like Let's Encrypt to get a free SSL certificate.
    <br>
 
-## Usage
+## Usage 🔧
 
 ### Running the Application
 
