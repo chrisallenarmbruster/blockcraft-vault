@@ -6,3 +6,13 @@ Dockerfile
 .gitignore
 **/.env
 **/*.pem
+
+.env.*
+*.env
+**/.env
+**/.env.*
+**/*.env
+*.private.yaml
+*.swp
+*.swo
+*~

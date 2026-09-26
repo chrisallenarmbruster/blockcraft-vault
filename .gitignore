@@ -132,3 +132,11 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+.env.*
+*.env
+!.env.example
+*.private.yaml
+*.swp
+*.swo
+*~
